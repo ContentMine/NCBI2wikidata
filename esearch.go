@@ -21,7 +21,6 @@ import (
 )
 
 const ESEARCH_URL string = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi"
-const NCBI_DB string = "pubmed"
 
 // ?db=pubmed&term=food[MeSH%20Major%20Topic]&reldate=60&datetype=edat&retmax=100&usehistory=y&retmode=json
 

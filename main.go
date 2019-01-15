@@ -15,6 +15,7 @@
 package main
 
 import (
+	"encoding/xml"
 	"fmt"
 	"os"
 )
@@ -22,16 +23,15 @@ import (
 func main() {
 	fmt.Println("Hello, world")
 
-	request := ESearchRequest{
-		Term:   "food",
-		DB:     "pubmed",
-		APIKey: os.Getenv("NCBI_API_KEY"),
-	}
-
-	res, err := request.Do()
+	f, err := os.Open("fetch1.xml")
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Printf("Response %v\n", res)
+	a := PubmedArticleSet{}
+	err = xml.NewDecoder(f).Decode(&a)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("%v\n", a)
 }
