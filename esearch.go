@@ -17,6 +17,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 )
 
@@ -42,6 +43,7 @@ type ESearchTranslationStackItem struct {
 }
 
 type ESearchResult struct {
+	Error            *string                       `json:"ERROR"`
 	Count            string                        `json:"count"`
 	Maximum          string                        `json:"retmax"`
 	Start            string                        `json:"restart"`
@@ -85,15 +87,15 @@ func (r ESearchResponse) String() string {
 	}
 }
 
-func (e *ESearchRequest) Do() (ESearchResponse, error) {
+func (e *ESearchRequest) Do() (*ESearchResult, error) {
 
 	if e.APIKey == "" {
-		return ESearchResponse{}, fmt.Errorf("No API Key provided.")
+		return nil, fmt.Errorf("No API Key provided.")
 	}
 
 	req, err := http.NewRequest("GET", ESEARCH_URL, nil)
 	if err != nil {
-		return ESearchResponse{}, err
+		return nil, err
 	}
 
 	q := req.URL.Query()
@@ -105,29 +107,44 @@ func (e *ESearchRequest) Do() (ESearchResponse, error) {
 		q.Add("usehistory", "y")
 	}
 	if e.RetMax > 0 {
-		q.Add("retmax", string(e.RetMax))
+		q.Add("retmax", fmt.Sprintf("%d", e.RetMax))
 	}
 	if e.RetStart > 0 {
-		q.Add("retstart", string(e.RetStart))
+		q.Add("retstart", fmt.Sprintf("%d", e.RetStart))
 	}
 	req.URL.RawQuery = q.Encode()
 
 	client := &http.Client{}
 	resp, response_err := client.Do(req)
 	if response_err != nil {
-		return ESearchResponse{}, response_err
+		return nil, response_err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return ESearchResponse{}, fmt.Errorf("Status code %d", resp.StatusCode)
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return nil, fmt.Errorf("Status code %d", resp.StatusCode)
+		} else {
+			return nil, fmt.Errorf("Status code %d: %s", resp.StatusCode, body)
+		}
 	}
 
 	esearch_resp := ESearchResponse{}
 	err = json.NewDecoder(resp.Body).Decode(&esearch_resp)
 	if err != nil {
-		return ESearchResponse{}, err
+		return nil, err
 	}
 
-	return esearch_resp, nil
+	if esearch_resp.Error != nil {
+		return nil, fmt.Errorf("API Error: %s", *esearch_resp.Error)
+	}
+	if esearch_resp.Result == nil {
+		return nil, fmt.Errorf("API Error: No result returned %v", esearch_resp)
+	}
+	if esearch_resp.Result.Error != nil {
+		return nil, fmt.Errorf("Search error: %s", *(esearch_resp.Result.Error))
+	}
+
+	return esearch_resp.Result, nil
 }
