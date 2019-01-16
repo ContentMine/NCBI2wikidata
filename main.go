@@ -33,5 +33,24 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("%v\n", a)
+
+
+	for _, article := range a.Articles {
+	    fmt.Printf("\n%s\n----\n", article.MedlineCitation.Article[0].ArticleTitle)
+	    for _, md := range article.MedlineCitation.MeshHeadingList.MeshHeadings {
+	        flag := ""
+	        if md.DescriptorName.MajorTopicYN == "Y" {
+	            flag = "*"
+	        }
+	        fmt.Printf("\t%s %s\n", md.DescriptorName.Name, flag)
+	        for _, q := range md.QualifierNames {
+                flag := ""
+                if q.MajorTopicYN == "Y" {
+                    flag = "*"
+                }
+	            fmt.Printf("\t\t%s %s\n", q.Name, flag)
+	        }
+	    }
+	}
+
 }

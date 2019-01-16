@@ -70,7 +70,7 @@ type MeshQualifierName struct {
 	XMLName      xml.Name `xml:"QualifierName"`
 	Name         string   `xml:",chardata"`
 	UI           string   `xml:"UI,attr"`
-	MajorTopicYN string   `xml:MajorTopicYN,attr"`
+	MajorTopicYN string   `xml:"MajorTopicYN,attr"`
 }
 
 type PubMedData struct {
