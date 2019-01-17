@@ -24,18 +24,16 @@ import (
 )
 
 var CC_LICENSE_ITEM_IDS = map[string]string{
-	"CC0": "Q6938433",
-	"CC BY": "Q6905323",
+	"CC0":         "Q6938433",
+	"CC BY":       "Q6905323",
 	"CC BY-NC-ND": "Q6937225",
-	"CC BY-NC": "Q6936496",
+	"CC BY-NC":    "Q6936496",
 
 	// These aren't in the NCBI OA list, but we might get them later from
 	// the EuroPMC API
 	"CC BY 2.5": "Q18810333",
 	"CC BY 4.0": "Q20007257",
 }
-
-
 
 // Load the NCBI open access file list so we can map PMID -> Copyright
 //
@@ -144,7 +142,7 @@ func main() {
 		var pmcid string
 		for _, articleID := range article.PubMedData.ArticleIDList.ArticleIDs {
 			if articleID.IDType == "pmc" {
-				pmcid = articleID.ID
+				pmcid = strings.TrimPrefix(articleID.ID, "PMC")
 				break
 			}
 		}
@@ -204,6 +202,26 @@ func main() {
 
 	fmt.Printf("We got information on %d records.\n", len(records))
 
+	// Query wikidata for some information
+	pmcid_list := make([]string, 0)
+	issn_list := make([]string, 0)
+	for _, record := range records {
+		if record.PMCID != "" {
+			pmcid_list = append(pmcid_list, record.PMCID)
+		}
+		if record.ISSN != "" {
+			issn_list = append(issn_list, record.ISSN)
+		}
+	}
+	pmcid_wikidata_items, perr := PMCIDsToWDItem(pmcid_list)
+	if perr != nil {
+		panic(perr)
+	}
+	issn_wikidata_items, ierr := ISSNsToWDItem(issn_list)
+	if ierr != nil {
+		panic(ierr)
+	}
+
 	f, e := os.Create("results.csv")
 	if e != nil {
 		panic(e)
@@ -212,12 +230,12 @@ func main() {
 	f.WriteString("Title\tItem\tPMID\tPMCID\tLicense\tLicense Item\tMain Subjects\tPublication Date\tPublication\tISSN\tISSN item\tPublication Type\n")
 	for _, record := range records {
 
-	    item, _ := PMCIDToWDItem(record.PMCID)
-	    issn_item, _ := ISSNToWDItem(record.ISSN)
+		item := pmcid_wikidata_items[record.PMCID]
+		issn_item := issn_wikidata_items[record.ISSN]
 
 		f.WriteString(fmt.Sprintf("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
 			record.Title, item, record.PMID, record.PMCID, record.License,
-	        CC_LICENSE_ITEM_IDS[record.License], record.MainSubjects,
+			CC_LICENSE_ITEM_IDS[record.License], record.MainSubjects,
 			record.PublicationDate, record.Publication, record.ISSN, issn_item, record.PublicationType))
 	}
 }

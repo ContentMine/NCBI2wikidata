@@ -15,36 +15,35 @@
 package main
 
 import (
-    "encoding/json"
-    "fmt"
-    "io/ioutil"
-    "net/http"
-    "strings"
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"net/http"
+	"strings"
 )
 
-
 type Head struct {
-    Vars []string `json:"vars"`
+	Vars []string `json:"vars"`
 }
 
 type Result struct {
-    Type string `json:"type"`
-    Value string `json:"value"`
+	Type  string `json:"type"`
+	Value string `json:"value"`
 }
 
 type Binding struct {
-    Result Result `json:"x"`
+	Result Result `json:"res"`
+	Key    Result `json:"val"`
 }
 
 type Results struct {
-    Bindings []Binding `json:"bindings"`
+	Bindings []Binding `json:"bindings"`
 }
 
 type SparqlResponse struct {
-    Head Head `json:"head"`
-    Results Results `json:"results"`
+	Head    Head    `json:"head"`
+	Results Results `json:"results"`
 }
-
 
 const SPARQL_QUERY_URL = "https://query.wikidata.org/sparql"
 
@@ -55,23 +54,51 @@ const SCIENTIFIC_JOURNAL_TYPE = "Q5633421"
 const PMCID_PROPERTY = "P932"
 const ISSN_PROPERTY = "P236"
 
-const QUERY_FORMAT = `SELECT ?x WHERE {
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
-  ?x wdt:P31 wd:%s.
-  ?x wdt:%s "%s".
-}`
+const QUERY_HEADER = `SELECT ?res ?val WHERE {
+`
+const QUERY_BODY = `
+  {
+    ?res wdt:P31 wd:%s.
+    ?res wdt:%s "%s".
+  }
+`
+const QUERY_FOOTER = `
+  OPTIONAL { ?res wdt:%s ?val. }
+}
+`
 
+func buildSparqlQuery(key string, values []string, item_type string) string {
 
-func GetItemsFromWikiData(key string, value string, item_type string) ([]string, error) {
+	query := QUERY_HEADER
+	for idx, val := range values {
+		if idx != 0 {
+			query += " UNION "
+		}
+		query += fmt.Sprintf(QUERY_BODY, item_type, key, val)
+	}
+	query += fmt.Sprintf(QUERY_FOOTER, key)
 
-    req, err := http.NewRequest("GET", SPARQL_QUERY_URL, nil)
+	return query
+}
+
+func GetItemsFromWikiData(key string, values []string, item_type string) (map[string]string, error) {
+
+	// If we're not given anything don't bother the server
+	results := make(map[string]string)
+	if len(values) == 0 {
+		return results, nil
+	}
+
+	query_string := buildSparqlQuery(key, values, item_type)
+
+	req, err := http.NewRequest("GET", SPARQL_QUERY_URL, nil)
 	if err != nil {
 		return nil, err
 	}
 
 	q := req.URL.Query()
 	q.Add("format", "json")
-	q.Add("query", fmt.Sprintf(QUERY_FORMAT, item_type, key, value))
+	q.Add("query", query_string)
 	req.URL.RawQuery = q.Encode()
 
 	client := &http.Client{}
@@ -96,38 +123,26 @@ func GetItemsFromWikiData(key string, value string, item_type string) ([]string,
 		return nil, err
 	}
 
-	results := make([]string, len(data.Results.Bindings))
-	for idx, binding := range data.Results.Bindings {
-	    results[idx] = strings.TrimPrefix(binding.Result.Value, "http://www.wikidata.org/entity/")
+	for _, binding := range data.Results.Bindings {
+
+		// In theory we whouldn't get multiple matches for the things we're looking up
+		// (i.e., each PMCID should give us just one paper item back). Due to mistakes that might
+		// not be true, so we just log when we hit issues
+		val := strings.TrimPrefix(binding.Result.Value, "http://www.wikidata.org/entity/")
+		if results[binding.Key.Value] != "" && results[binding.Key.Value] != val {
+			results[binding.Key.Value] += "CLASH"
+		} else {
+			results[binding.Key.Value] = val
+		}
 	}
 
 	return results, nil
 }
 
-
-
-func PMCIDToWDItem(pmcid string) (string, error) {
-    results, err := GetItemsFromWikiData(PMCID_PROPERTY, strings.TrimPrefix(pmcid, "PMC"), SCHOLARLY_ARTICLE_TYPE)
-    if err != nil {
-        return "", err
-    }
-    if len(results) != 1 {
-        return "", fmt.Errorf("We wanted just one result, we got %d", len(results))
-    } else {
-        return results[0], nil
-    }
+func PMCIDsToWDItem(pmcids []string) (map[string]string, error) {
+	return GetItemsFromWikiData(PMCID_PROPERTY, pmcids, SCHOLARLY_ARTICLE_TYPE)
 }
 
-
-
-func ISSNToWDItem(issn string) (string, error) {
-    results, err := GetItemsFromWikiData(ISSN_PROPERTY, issn, SCIENTIFIC_JOURNAL_TYPE)
-    if err != nil {
-        return "", err
-    }
-    if len(results) != 1 {
-        return "", fmt.Errorf("We wanted just one result, we got %d", len(results))
-    } else {
-        return results[0], nil
-    }
+func ISSNsToWDItem(issn []string) (map[string]string, error) {
+	return GetItemsFromWikiData(ISSN_PROPERTY, issn, SCIENTIFIC_JOURNAL_TYPE)
 }
