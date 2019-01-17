@@ -109,14 +109,14 @@ type MeshHeading struct {
 type MeshDescriptorName struct {
 	XMLName      xml.Name `xml:"DescriptorName"`
 	Name         string   `xml:",chardata"`
-	UI           string   `xml:"UI,attr"`
+	MeshID       string   `xml:"UI,attr"`
 	MajorTopicYN string   `xml:MajorTopicYN,attr"`
 }
 
 type MeshQualifierName struct {
 	XMLName      xml.Name `xml:"QualifierName"`
 	Name         string   `xml:",chardata"`
-	UI           string   `xml:"UI,attr"`
+	MeshID       string   `xml:"UI,attr"`
 	MajorTopicYN string   `xml:"MajorTopicYN,attr"`
 }
 

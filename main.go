@@ -86,7 +86,7 @@ func LoadLicenses(filename string) (map[string]string, error) {
 
 type Record struct {
 	Title           string `json:"P1476"`
-	MainSubjects    string `json:"P921"`
+	MainSubjects    []MeshDescriptorName `json:"P921"`
 	PublicationType string `json:"P31"`
 	//Publisher       string `json:"P123"`
 	PublicationDate string `json:"P577"`
@@ -136,6 +136,12 @@ func main() {
 
 	records := make([]Record, 0)
 
+
+	// Query wikidata for some information
+	pmcid_list := make([]string, 0)
+	issn_list := make([]string, 0)
+	main_subject_list := make([]string, 0)
+
 	for _, article := range fetch_resp.Articles {
 
 		// Is there a PMCID for this paper
@@ -145,6 +151,9 @@ func main() {
 				pmcid = strings.TrimPrefix(articleID.ID, "PMC")
 				break
 			}
+		}
+		if pmcid != "" {
+			pmcid_list = append(pmcid_list, pmcid)
 		}
 
 		var license string
@@ -162,14 +171,15 @@ func main() {
 			continue
 		}
 
-		subjects := ""
+		subjects := make([]MeshDescriptorName, 0)
 		for _, mesh := range article.MedlineCitation.MeshHeadingList.MeshHeadings {
 			major := mesh.DescriptorName.MajorTopicYN == "Y"
 			for _, qual := range mesh.QualifierNames {
 				major = major || qual.MajorTopicYN == "Y"
 			}
 			if major {
-				subjects = fmt.Sprintf("%s; %s", subjects, mesh.DescriptorName.Name)
+			    main_subject_list = append(main_subject_list, mesh.DescriptorName.MeshID)
+				subjects = append(subjects, mesh.DescriptorName)
 			}
 		}
 
@@ -185,6 +195,11 @@ func main() {
 			pubtype = article.MedlineCitation.Article[0].PublicationTypeList.PublicationTypes[0].Type
 		}
 
+		issn := article.MedlineCitation.Article[0].Journal.ISSN
+		if issn != "" {
+			issn_list = append(issn_list, issn)
+		}
+
 		r := Record{
 			Title:           article.MedlineCitation.Article[0].ArticleTitle,
 			PMID:            article.MedlineCitation.PMID,
@@ -193,7 +208,7 @@ func main() {
 			MainSubjects:    subjects,
 			PublicationDate: pubdate,
 			Publication:     article.MedlineCitation.Article[0].Journal.Title,
-			ISSN:            article.MedlineCitation.Article[0].Journal.ISSN,
+			ISSN:            issn,
 			PublicationType: pubtype,
 		}
 
@@ -202,17 +217,6 @@ func main() {
 
 	fmt.Printf("We got information on %d records.\n", len(records))
 
-	// Query wikidata for some information
-	pmcid_list := make([]string, 0)
-	issn_list := make([]string, 0)
-	for _, record := range records {
-		if record.PMCID != "" {
-			pmcid_list = append(pmcid_list, record.PMCID)
-		}
-		if record.ISSN != "" {
-			issn_list = append(issn_list, record.ISSN)
-		}
-	}
 	pmcid_wikidata_items, perr := PMCIDsToWDItem(pmcid_list)
 	if perr != nil {
 		panic(perr)
@@ -220,6 +224,14 @@ func main() {
 	issn_wikidata_items, ierr := ISSNsToWDItem(issn_list)
 	if ierr != nil {
 		panic(ierr)
+	}
+	drug_wikidata_items, d1err := DrugsToWDItem(main_subject_list)
+	if d1err != nil {
+	    panic (d1err)
+	}
+	disease_wikidata_items, d2err := DiseasesToWDItem(main_subject_list)
+	if d2err != nil {
+	    panic (d2err)
 	}
 
 	f, e := os.Create("results.csv")
@@ -233,9 +245,27 @@ func main() {
 		item := pmcid_wikidata_items[record.PMCID]
 		issn_item := issn_wikidata_items[record.ISSN]
 
+		main_subjects := ""
+		for idx, subject := range record.MainSubjects {
+		    if idx != 0 {
+		        main_subjects += "; "
+		    }
+		    main_subjects += subject.Name
+		    l := drug_wikidata_items[subject.MeshID]
+		    if disease_wikidata_items[subject.MeshID] != "" {
+		        if l != "" {
+		            l += ", "
+		        }
+		        l += disease_wikidata_items[subject.MeshID]
+		    }
+            if l != "" {
+                main_subjects += fmt.Sprintf(" (%s)", l)
+            }
+		}
+
 		f.WriteString(fmt.Sprintf("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
 			record.Title, item, record.PMID, record.PMCID, record.License,
-			CC_LICENSE_ITEM_IDS[record.License], record.MainSubjects,
+			CC_LICENSE_ITEM_IDS[record.License], main_subjects,
 			record.PublicationDate, record.Publication, record.ISSN, issn_item, record.PublicationType))
 	}
 }
