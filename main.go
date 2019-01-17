@@ -23,6 +23,20 @@ import (
 	"strings"
 )
 
+var CC_LICENSE_ITEM_IDS = map[string]string{
+	"CC0": "Q6938433",
+	"CC BY": "Q6905323",
+	"CC BY-NC-ND": "Q6937225",
+	"CC BY-NC": "Q6936496",
+
+	// These aren't in the NCBI OA list, but we might get them later from
+	// the EuroPMC API
+	"CC BY 2.5": "Q18810333",
+	"CC BY 4.0": "Q20007257",
+}
+
+
+
 // Load the NCBI open access file list so we can map PMID -> Copyright
 //
 // First line is date file was generated, rest are tab separated info on papers. Example:
@@ -193,10 +207,14 @@ func main() {
 		panic(e)
 	}
 	defer f.Close()
-	f.WriteString("Title\tPMID\tPMCID\tLicense\tMain Subjects\tPublication Date\tPublication\tPublication Type\n")
+	f.WriteString("Title\tItem\tPMID\tPMCID\tLicense\tLicense Item\tMain Subjects\tPublication Date\tPublication\tPublication Type\n")
 	for _, record := range records {
-		f.WriteString(fmt.Sprintf("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
-			record.Title, record.PMID, record.PMCID, record.License, record.MainSubjects,
+
+	    item, _ := PMCIDToWDItem(record.PMCID)
+
+		f.WriteString(fmt.Sprintf("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
+			record.Title, item, record.PMID, record.PMCID, record.License,
+	        CC_LICENSE_ITEM_IDS[record.License], record.MainSubjects,
 			record.PublicationDate, record.Publication, record.PublicationType))
 	}
 }

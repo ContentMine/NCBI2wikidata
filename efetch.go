@@ -176,7 +176,6 @@ func (e *EFetchHistoryRequest) Do() (PubmedArticleSet, error) {
 	client := &http.Client{}
 	resp, response_err := client.Do(req)
 	if response_err != nil {
-		fmt.Printf("blash")
 		return PubmedArticleSet{}, response_err
 	}
 	defer resp.Body.Close()
