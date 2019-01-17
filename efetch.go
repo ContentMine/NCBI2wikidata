@@ -77,6 +77,7 @@ type Journal struct {
 	Title           string       `xml:"Title"`
 	ISOAbbreviation string       `xml:"ISOAbbreviation"`
 	JournalIssue    JournalIssue `xml:"JournalIssue"`
+	ISSN            string       `xml:"ISSN"`
 }
 
 type JournalIssue struct {

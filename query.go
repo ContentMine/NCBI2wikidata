@@ -50,15 +50,19 @@ const SPARQL_QUERY_URL = "https://query.wikidata.org/sparql"
 
 const CC_LICENSE_TYPE = "Q284742"
 const SCHOLARLY_ARTICLE_TYPE = "Q13442814"
+const SCIENTIFIC_JOURNAL_TYPE = "Q5633421"
+
+const PMCID_PROPERTY = "P932"
+const ISSN_PROPERTY = "P236"
 
 const QUERY_FORMAT = `SELECT ?x WHERE {
   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
   ?x wdt:P31 wd:%s.
-  ?x wdt:P932 "%s".
+  ?x wdt:%s "%s".
 }`
 
 
-func GetItemsFromWikiData(key string, item_type string) ([]string, error) {
+func GetItemsFromWikiData(key string, value string, item_type string) ([]string, error) {
 
     req, err := http.NewRequest("GET", SPARQL_QUERY_URL, nil)
 	if err != nil {
@@ -67,7 +71,7 @@ func GetItemsFromWikiData(key string, item_type string) ([]string, error) {
 
 	q := req.URL.Query()
 	q.Add("format", "json")
-	q.Add("query", fmt.Sprintf(QUERY_FORMAT, item_type, key))
+	q.Add("query", fmt.Sprintf(QUERY_FORMAT, item_type, key, value))
 	req.URL.RawQuery = q.Encode()
 
 	client := &http.Client{}
@@ -103,7 +107,21 @@ func GetItemsFromWikiData(key string, item_type string) ([]string, error) {
 
 
 func PMCIDToWDItem(pmcid string) (string, error) {
-    results, err := GetItemsFromWikiData(strings.TrimPrefix(pmcid, "PMC"), SCHOLARLY_ARTICLE_TYPE)
+    results, err := GetItemsFromWikiData(PMCID_PROPERTY, strings.TrimPrefix(pmcid, "PMC"), SCHOLARLY_ARTICLE_TYPE)
+    if err != nil {
+        return "", err
+    }
+    if len(results) != 1 {
+        return "", fmt.Errorf("We wanted just one result, we got %d", len(results))
+    } else {
+        return results[0], nil
+    }
+}
+
+
+
+func ISSNToWDItem(issn string) (string, error) {
+    results, err := GetItemsFromWikiData(ISSN_PROPERTY, issn, SCIENTIFIC_JOURNAL_TYPE)
     if err != nil {
         return "", err
     }

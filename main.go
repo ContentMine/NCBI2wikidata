@@ -93,6 +93,7 @@ type Record struct {
 	//Publisher       string `json:"P123"`
 	PublicationDate string `json:"P577"`
 	Publication     string `json:"P1433"`
+	ISSN            string `json:"hmm"`
 	License         string `json:"P275"`
 	PMID            string `json:"P698"`
 	PMCID           string `json:"P932"`
@@ -194,6 +195,7 @@ func main() {
 			MainSubjects:    subjects,
 			PublicationDate: pubdate,
 			Publication:     article.MedlineCitation.Article[0].Journal.Title,
+			ISSN:            article.MedlineCitation.Article[0].Journal.ISSN,
 			PublicationType: pubtype,
 		}
 
@@ -207,14 +209,15 @@ func main() {
 		panic(e)
 	}
 	defer f.Close()
-	f.WriteString("Title\tItem\tPMID\tPMCID\tLicense\tLicense Item\tMain Subjects\tPublication Date\tPublication\tPublication Type\n")
+	f.WriteString("Title\tItem\tPMID\tPMCID\tLicense\tLicense Item\tMain Subjects\tPublication Date\tPublication\tISSN\tISSN item\tPublication Type\n")
 	for _, record := range records {
 
 	    item, _ := PMCIDToWDItem(record.PMCID)
+	    issn_item, _ := ISSNToWDItem(record.ISSN)
 
-		f.WriteString(fmt.Sprintf("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
+		f.WriteString(fmt.Sprintf("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
 			record.Title, item, record.PMID, record.PMCID, record.License,
 	        CC_LICENSE_ITEM_IDS[record.License], record.MainSubjects,
-			record.PublicationDate, record.Publication, record.PublicationType))
+			record.PublicationDate, record.Publication, record.ISSN, issn_item, record.PublicationType))
 	}
 }
