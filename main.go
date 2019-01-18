@@ -109,7 +109,7 @@ func main() {
 		DB:         "pubmed",
 		APIKey:     os.Getenv("NCBI_API_KEY"),
 		Term:       "\"Rett Syndrome\"[Mesh Major Topic] AND Review[ptyp]",
-		RetMax:     5,
+		RetMax:     200,
 		UseHistory: true,
 	}
 
@@ -125,6 +125,7 @@ func main() {
 		WebEnv:   search_resp.WebEnv,
 		QueryKey: search_resp.QueryKey,
 		APIKey:   os.Getenv("NCBI_API_KEY"),
+		RetMax:   200,
 	}
 
 	fetch_resp, ferr := fetch_request.Do()

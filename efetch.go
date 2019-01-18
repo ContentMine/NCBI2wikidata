@@ -153,6 +153,8 @@ type EFetchHistoryRequest struct {
 	WebEnv   string
 	QueryKey string
 	APIKey   string
+	RetMax   int
+	RetStart int
 }
 
 func (e *EFetchHistoryRequest) Do() (PubmedArticleSet, error) {
@@ -172,6 +174,12 @@ func (e *EFetchHistoryRequest) Do() (PubmedArticleSet, error) {
 	q.Add("WebEnv", e.WebEnv)
 	q.Add("query_key", e.QueryKey)
 	q.Add("retmode", "xml")
+	if e.RetMax > 0 {
+		q.Add("retmax", fmt.Sprintf("%d", e.RetMax))
+	}
+	if e.RetStart > 0 {
+		q.Add("retstart", fmt.Sprintf("%d", e.RetStart))
+	}
 	req.URL.RawQuery = q.Encode()
 
 	client := &http.Client{}
