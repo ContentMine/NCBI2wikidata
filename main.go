@@ -21,6 +21,7 @@ import (
 	//"log"
 	"os"
 	"strings"
+	"time"
 )
 
 var CC_LICENSE_ITEM_IDS = map[string]string{
@@ -85,16 +86,15 @@ func LoadLicenses(filename string) (map[string]string, error) {
 }
 
 type Record struct {
-	Title           string `json:"P1476"`
+	Title           string               `json:"P1476"`
 	MainSubjects    []MeshDescriptorName `json:"P921"`
-	PublicationType string `json:"P31"`
-	//Publisher       string `json:"P123"`
-	PublicationDate string `json:"P577"`
-	Publication     string `json:"P1433"`
-	ISSN            string `json:"hmm"`
-	License         string `json:"P275"`
-	PMID            string `json:"P698"`
-	PMCID           string `json:"P932"`
+	PublicationType string               `json:"P31"`
+	PublicationDate string               `json:"P577"`
+	Publication     string               `json:"P1433"`
+	ISSN            string               `json:"hmm"`
+	License         string               `json:"P275"`
+	PMID            string               `json:"P698"`
+	PMCID           string               `json:"P932"`
 }
 
 func main() {
@@ -137,7 +137,6 @@ func main() {
 
 	records := make([]Record, 0)
 
-
 	// Query wikidata for some information
 	pmcid_list := make([]string, 0)
 	issn_list := make([]string, 0)
@@ -179,7 +178,7 @@ func main() {
 				major = major || qual.MajorTopicYN == "Y"
 			}
 			if major {
-			    main_subject_list = append(main_subject_list, mesh.DescriptorName.MeshID)
+				main_subject_list = append(main_subject_list, mesh.DescriptorName.MeshID)
 				subjects = append(subjects, mesh.DescriptorName)
 			}
 		}
@@ -228,45 +227,91 @@ func main() {
 	}
 	drug_wikidata_items, d1err := DrugsToWDItem(main_subject_list)
 	if d1err != nil {
-	    panic (d1err)
+		panic(d1err)
 	}
 	disease_wikidata_items, d2err := DiseasesToWDItem(main_subject_list)
 	if d2err != nil {
-	    panic (d2err)
+		panic(d2err)
 	}
 
-	f, e := os.Create("results.csv")
+	f, e := os.Create("results_quickstatements.txt")
 	if e != nil {
 		panic(e)
 	}
+
+	now := time.Now()
+
 	defer f.Close()
-	f.WriteString("Title\tItem\tPMID\tPMCID\tLicense\tLicense Item\tMain Subjects\tPublication Date\tPublication\tISSN\tISSN item\tPublication Type\n")
+	//f.WriteString("Title\tItem\tPMID\tPMCID\tLicense\tLicense Item\tMain Subjects\tPublication Date\tPublication\tISSN\tISSN item\tPublication Type\n")
 	for _, record := range records {
 
 		item := pmcid_wikidata_items[record.PMCID]
 		issn_item := issn_wikidata_items[record.ISSN]
 
-		main_subjects := ""
+		if item != "" {
+			statement := AddStringPropertyToItem(item, PMID_PROPERTY, record.PMID)
+			statement.AddSource(STATED_IN_SOURCE, PMC_ITEM)
+			statement.AddSource(RETRIEVED_AT_DATE_SOURCE, fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/9", now.Year(), now.Month(), now.Day()))
+			f.WriteString(fmt.Sprintf("%v", statement))
+
+			statement = AddStringPropertyToItem(item, PMCID_PROPERTY, record.PMCID)
+			statement.AddSource(STATED_IN_SOURCE, PMC_ITEM)
+			statement.AddSource(RETRIEVED_AT_DATE_SOURCE, fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/9", now.Year(), now.Month(), now.Day()))
+			f.WriteString(fmt.Sprintf("%v", statement))
+
+			if CC_LICENSE_ITEM_IDS[record.License] != "" {
+				statement = AddItemPropertyToItem(item, LICENSE_PROPERTY, CC_LICENSE_ITEM_IDS[record.License])
+			    statement.AddSource(STATED_IN_SOURCE, PMC_ITEM)
+    			statement.AddSource(RETRIEVED_AT_DATE_SOURCE, fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/9", now.Year(), now.Month(), now.Day()))
+				f.WriteString(fmt.Sprintf("%v", statement))
+			}
+
+			if issn_item != "" {
+				statement = AddItemPropertyToItem(item, PUBLICATION_PROPERTY, issn_item)
+    			statement.AddSource(STATED_IN_SOURCE, PMC_ITEM)
+    			statement.AddSource(RETRIEVED_AT_DATE_SOURCE, fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/9", now.Year(), now.Month(), now.Day()))
+				f.WriteString(fmt.Sprintf("%v", statement))
+			}
+
+			for _, subject := range record.MainSubjects {
+				if drug_wikidata_items[subject.MeshID] != "" {
+					statement = AddItemPropertyToItem(item, MAIN_SUBJECT_PROPERTY, drug_wikidata_items[subject.MeshID])
+        			statement.AddSource(STATED_IN_SOURCE, PMC_ITEM)
+        			statement.AddSource(RETRIEVED_AT_DATE_SOURCE, fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/9", now.Year(), now.Month(), now.Day()))
+					f.WriteString(fmt.Sprintf("%v", statement))
+				}
+				if disease_wikidata_items[subject.MeshID] != "" {
+					statement = AddItemPropertyToItem(item, MAIN_SUBJECT_PROPERTY, disease_wikidata_items[subject.MeshID])
+        			statement.AddSource(STATED_IN_SOURCE, PMC_ITEM)
+        			statement.AddSource(RETRIEVED_AT_DATE_SOURCE, fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/9", now.Year(), now.Month(), now.Day()))
+					f.WriteString(fmt.Sprintf("%v", statement))
+				}
+			}
+
+			f.WriteString("\n")
+		}
+
+		/*main_subjects := ""
 		for idx, subject := range record.MainSubjects {
-		    if idx != 0 {
-		        main_subjects += "; "
-		    }
-		    main_subjects += subject.Name
-		    l := drug_wikidata_items[subject.MeshID]
-		    if disease_wikidata_items[subject.MeshID] != "" {
-		        if l != "" {
-		            l += ", "
-		        }
-		        l += disease_wikidata_items[subject.MeshID]
-		    }
-            if l != "" {
-                main_subjects += fmt.Sprintf(" (%s)", l)
-            }
+			if idx != 0 {
+				main_subjects += "; "
+			}
+			main_subjects += subject.Name
+			l := drug_wikidata_items[subject.MeshID]
+			if disease_wikidata_items[subject.MeshID] != "" {
+				if l != "" {
+					l += ", "
+				}
+				l += disease_wikidata_items[subject.MeshID]
+			}
+			if l != "" {
+				main_subjects += fmt.Sprintf(" (%s)", l)
+			}
 		}
 
 		f.WriteString(fmt.Sprintf("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
 			record.Title, item, record.PMID, record.PMCID, record.License,
 			CC_LICENSE_ITEM_IDS[record.License], main_subjects,
-			record.PublicationDate, record.Publication, record.ISSN, issn_item, record.PublicationType))
+			record.PublicationDate, record.Publication, record.ISSN, issn_item, record.PublicationType))*/
 	}
 }

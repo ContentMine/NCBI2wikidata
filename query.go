@@ -47,16 +47,6 @@ type SparqlResponse struct {
 
 const SPARQL_QUERY_URL = "https://query.wikidata.org/sparql"
 
-const CC_LICENSE_TYPE = "Q284742"
-const SCHOLARLY_ARTICLE_TYPE = "Q13442814"
-const SCIENTIFIC_JOURNAL_TYPE = "Q5633421"
-const DISEASE_TYPE = "Q12136"
-const DRUG_TYPE = "Q8386"
-
-const PMCID_PROPERTY = "P932"
-const ISSN_PROPERTY = "P236"
-const MESH_ID_PROPERTY = "P486"
-
 const QUERY_HEADER = `SELECT ?res ?val WHERE {
 `
 const QUERY_BODY = `
@@ -144,6 +134,10 @@ func GetItemsFromWikiData(key string, values []string, item_type string) (map[st
 
 func PMCIDsToWDItem(pmcids []string) (map[string]string, error) {
 	return GetItemsFromWikiData(PMCID_PROPERTY, pmcids, SCHOLARLY_ARTICLE_TYPE)
+}
+
+func PMIDsToWDItem(pmcids []string) (map[string]string, error) {
+	return GetItemsFromWikiData(PMID_PROPERTY, pmcids, SCHOLARLY_ARTICLE_TYPE)
 }
 
 func ISSNsToWDItem(issn []string) (map[string]string, error) {
