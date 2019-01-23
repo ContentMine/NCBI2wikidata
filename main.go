@@ -16,9 +16,10 @@ package main
 
 import (
 	"bufio"
-	//"encoding/json"
+	"encoding/json"
+	"flag"
 	"fmt"
-	//"log"
+	"log"
 	"os"
 	"strings"
 	"time"
@@ -86,39 +87,38 @@ func LoadLicenses(filename string) (map[string]string, error) {
 }
 
 type Record struct {
-	Title           string               `json:"P1476"`
-	MainSubjects    []MeshDescriptorName `json:"P921"`
-	PublicationType string               `json:"P31"`
-	PublicationDate string               `json:"P577"`
-	Publication     string               `json:"P1433"`
-	ISSN            string               `json:"hmm"`
-	License         string               `json:"P275"`
-	PMID            string               `json:"P698"`
-	PMCID           string               `json:"P932"`
+	Title           string
+	MainSubjects    []MeshDescriptorName
+	PublicationType string
+	PublicationDate string
+	Publication     string
+	ISSN            string
+	License         string
+	PMID            string
+	PMCID           string
 }
 
-func main() {
-	fmt.Println("Hello, world")
+func batch(term string) error {
 
 	license_lookup, err := LoadLicenses("oa_file_list.txt")
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	search_request := ESearchRequest{
 		DB:         "pubmed",
 		APIKey:     os.Getenv("NCBI_API_KEY"),
-		Term:       "\"Rett Syndrome\"[Mesh Major Topic] AND Review[ptyp]",
+		Term:       term,
 		RetMax:     200,
 		UseHistory: true,
 	}
 
 	search_resp, rerr := search_request.Do()
 	if rerr != nil {
-		panic(rerr)
+		return rerr
 	}
 
-	fmt.Printf("Search returned %d of %s matches.\n", len(search_resp.IDs), search_resp.Count)
+	log.Printf("Search returned %d of %s matches.\n", len(search_resp.IDs), search_resp.Count)
 
 	fetch_request := EFetchHistoryRequest{
 		DB:       "pubmed",
@@ -130,10 +130,10 @@ func main() {
 
 	fetch_resp, ferr := fetch_request.Do()
 	if ferr != nil {
-		panic(ferr)
+		return ferr
 	}
 
-	fmt.Printf("Fetched %d articles.\n", len(fetch_resp.Articles))
+	log.Printf("Fetched %d articles for %s.\n", len(fetch_resp.Articles), term)
 
 	records := make([]Record, 0)
 
@@ -215,28 +215,28 @@ func main() {
 		records = append(records, r)
 	}
 
-	fmt.Printf("We got information on %d records.\n", len(records))
+	log.Printf("We got information on %d records for %s.\n", len(records), term)
 
 	pmcid_wikidata_items, perr := PMCIDsToWDItem(pmcid_list)
 	if perr != nil {
-		panic(perr)
+		return perr
 	}
 	issn_wikidata_items, ierr := ISSNsToWDItem(issn_list)
 	if ierr != nil {
-		panic(ierr)
+		return ierr
 	}
 	drug_wikidata_items, d1err := DrugsToWDItem(main_subject_list)
 	if d1err != nil {
-		panic(d1err)
+		return d1err
 	}
 	disease_wikidata_items, d2err := DiseasesToWDItem(main_subject_list)
 	if d2err != nil {
-		panic(d2err)
+		return d2err
 	}
 
 	f, e := os.Create("results_quickstatements.txt")
 	if e != nil {
-		panic(e)
+		return e
 	}
 
 	now := time.Now()
@@ -261,29 +261,29 @@ func main() {
 
 			if CC_LICENSE_ITEM_IDS[record.License] != "" {
 				statement = AddItemPropertyToItem(item, LICENSE_PROPERTY, CC_LICENSE_ITEM_IDS[record.License])
-			    statement.AddSource(STATED_IN_SOURCE, PMC_ITEM)
-    			statement.AddSource(RETRIEVED_AT_DATE_SOURCE, fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/9", now.Year(), now.Month(), now.Day()))
+				statement.AddSource(STATED_IN_SOURCE, PMC_ITEM)
+				statement.AddSource(RETRIEVED_AT_DATE_SOURCE, fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/9", now.Year(), now.Month(), now.Day()))
 				f.WriteString(fmt.Sprintf("%v", statement))
 			}
 
 			if issn_item != "" {
 				statement = AddItemPropertyToItem(item, PUBLICATION_PROPERTY, issn_item)
-    			statement.AddSource(STATED_IN_SOURCE, PMC_ITEM)
-    			statement.AddSource(RETRIEVED_AT_DATE_SOURCE, fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/9", now.Year(), now.Month(), now.Day()))
+				statement.AddSource(STATED_IN_SOURCE, PMC_ITEM)
+				statement.AddSource(RETRIEVED_AT_DATE_SOURCE, fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/9", now.Year(), now.Month(), now.Day()))
 				f.WriteString(fmt.Sprintf("%v", statement))
 			}
 
 			for _, subject := range record.MainSubjects {
 				if drug_wikidata_items[subject.MeshID] != "" {
 					statement = AddItemPropertyToItem(item, MAIN_SUBJECT_PROPERTY, drug_wikidata_items[subject.MeshID])
-        			statement.AddSource(STATED_IN_SOURCE, PMC_ITEM)
-        			statement.AddSource(RETRIEVED_AT_DATE_SOURCE, fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/9", now.Year(), now.Month(), now.Day()))
+					statement.AddSource(STATED_IN_SOURCE, PMC_ITEM)
+					statement.AddSource(RETRIEVED_AT_DATE_SOURCE, fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/9", now.Year(), now.Month(), now.Day()))
 					f.WriteString(fmt.Sprintf("%v", statement))
 				}
 				if disease_wikidata_items[subject.MeshID] != "" {
 					statement = AddItemPropertyToItem(item, MAIN_SUBJECT_PROPERTY, disease_wikidata_items[subject.MeshID])
-        			statement.AddSource(STATED_IN_SOURCE, PMC_ITEM)
-        			statement.AddSource(RETRIEVED_AT_DATE_SOURCE, fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/9", now.Year(), now.Month(), now.Day()))
+					statement.AddSource(STATED_IN_SOURCE, PMC_ITEM)
+					statement.AddSource(RETRIEVED_AT_DATE_SOURCE, fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/9", now.Year(), now.Month(), now.Day()))
 					f.WriteString(fmt.Sprintf("%v", statement))
 				}
 			}
@@ -314,4 +314,32 @@ func main() {
 			CC_LICENSE_ITEM_IDS[record.License], main_subjects,
 			record.PublicationDate, record.Publication, record.ISSN, issn_item, record.PublicationType))*/
 	}
+
+	return nil
+}
+
+func main() {
+
+    var term_feed_path string
+    flag.StringVar(&term_feed_path,"feed", "", "JSON list of terms to search PMC for.")
+    flag.Parse()
+
+    f, err := os.Open(term_feed_path)
+    if err != nil {
+        panic(err)
+    }
+
+    var term_feed []string
+    err = json.NewDecoder(f).Decode(&term_feed)
+    if err != nil {
+        panic(err)
+    }
+
+    for _, term := range term_feed {
+        x := fmt.Sprintf("\"%s\"[Mesh Major Topic] AND Review[ptyp]", term)
+        err := batch(x)
+        if err != nil {
+            panic(err)
+        }
+    }
 }
