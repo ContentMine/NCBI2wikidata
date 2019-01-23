@@ -94,7 +94,7 @@ type Record struct {
 	PMCID            string
 }
 
-func batch(term string) error {
+func batch(term string, ncbi_api_key string) error {
 
 	license_lookup, err := LoadLicenses("oa_file_list.txt")
 	if err != nil {
@@ -135,7 +135,7 @@ func batch(term string) error {
 			DB:       "pubmed",
 			WebEnv:   search_resp.WebEnv,
 			QueryKey: search_resp.QueryKey,
-			APIKey:   os.Getenv("NCBI_API_KEY"),
+			APIKey:   ncbi_api_key,
 			RetStart: i,
 			RetMax:   EFETCH_BATCH_SIZE,
 		}
@@ -371,8 +371,14 @@ func batch(term string) error {
 func main() {
 
 	var term_feed_path string
+	var ncbi_api_key string
 	flag.StringVar(&term_feed_path, "feed", "", "JSON list of terms to search PMC for.")
+	flag.StringVar(&ncbi_api_key, "ncbi_api_key", "", "NCBI API KEY. Can also be set as NCBI_API_KEY environmental variable.")
 	flag.Parse()
+
+	if ncbi_api_key == "" {
+		ncbi_api_key = os.Getenv("NCBI_API_KEY")
+	}
 
 	f, err := os.Open(term_feed_path)
 	if err != nil {
@@ -385,9 +391,9 @@ func main() {
 		panic(err)
 	}
 
-	for _, term := range term_feed[:1] {
+	for _, term := range term_feed {
 		x := fmt.Sprintf("\"%s\"[Mesh Major Topic] AND Review[ptyp]", term)
-		err := batch(x)
+		err := batch(x, ncbi_api_key)
 		if err != nil {
 			panic(err)
 		}
