@@ -219,30 +219,35 @@ func batch(term string) error {
 
 	pmcid_wikidata_items, perr := PMCIDsToWDItem(pmcid_list)
 	if perr != nil {
-		return perr
+		return fmt.Errorf("Failed fetching %d PMCID items: %v", len(pmcid_list), perr)
 	}
 	issn_wikidata_items, ierr := ISSNsToWDItem(issn_list)
 	if ierr != nil {
-		return ierr
+		return fmt.Errorf("Failed fetching %d ISSN items: %v", len(issn_list), ierr)
 	}
 	drug_wikidata_items, d1err := DrugsToWDItem(main_subject_list)
 	if d1err != nil {
-		return d1err
+		return fmt.Errorf("Failed fetching drug %d items: %v", len(main_subject_list), d1err)
 	}
 	disease_wikidata_items, d2err := DiseasesToWDItem(main_subject_list)
 	if d2err != nil {
-		return d2err
+		return fmt.Errorf("Failed fetching %d disease items: %v", len(main_subject_list), d2err)
 	}
 
-	f, e := os.Create("results_quickstatements.txt")
-	if e != nil {
-		return e
+	qs_file, qe := os.Create("results_quickstatements.txt")
+	if qe != nil {
+		return qe
 	}
+	defer qs_file.Close()
+	csv_file, ce := os.Create("results.csv")
+	if ce != nil {
+		return ce
+	}
+	defer csv_file.Close()
+	csv_file.WriteString("Title\tItem\tPMID\tPMCID\tLicense\tLicense Item\tMain Subjects\tPublication Date\tPublication\tISSN\tISSN item\tPublication Type\n")
 
 	now := time.Now()
 
-	defer f.Close()
-	//f.WriteString("Title\tItem\tPMID\tPMCID\tLicense\tLicense Item\tMain Subjects\tPublication Date\tPublication\tISSN\tISSN item\tPublication Type\n")
 	for _, record := range records {
 
 		item := pmcid_wikidata_items[record.PMCID]
@@ -252,25 +257,25 @@ func batch(term string) error {
 			statement := AddStringPropertyToItem(item, PMID_PROPERTY, record.PMID)
 			statement.AddSource(STATED_IN_SOURCE, PMC_ITEM)
 			statement.AddSource(RETRIEVED_AT_DATE_SOURCE, fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/9", now.Year(), now.Month(), now.Day()))
-			f.WriteString(fmt.Sprintf("%v", statement))
+			qs_file.WriteString(fmt.Sprintf("%v", statement))
 
 			statement = AddStringPropertyToItem(item, PMCID_PROPERTY, record.PMCID)
 			statement.AddSource(STATED_IN_SOURCE, PMC_ITEM)
 			statement.AddSource(RETRIEVED_AT_DATE_SOURCE, fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/9", now.Year(), now.Month(), now.Day()))
-			f.WriteString(fmt.Sprintf("%v", statement))
+			qs_file.WriteString(fmt.Sprintf("%v", statement))
 
 			if CC_LICENSE_ITEM_IDS[record.License] != "" {
 				statement = AddItemPropertyToItem(item, LICENSE_PROPERTY, CC_LICENSE_ITEM_IDS[record.License])
 				statement.AddSource(STATED_IN_SOURCE, PMC_ITEM)
 				statement.AddSource(RETRIEVED_AT_DATE_SOURCE, fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/9", now.Year(), now.Month(), now.Day()))
-				f.WriteString(fmt.Sprintf("%v", statement))
+				qs_file.WriteString(fmt.Sprintf("%v", statement))
 			}
 
 			if issn_item != "" {
 				statement = AddItemPropertyToItem(item, PUBLICATION_PROPERTY, issn_item)
 				statement.AddSource(STATED_IN_SOURCE, PMC_ITEM)
 				statement.AddSource(RETRIEVED_AT_DATE_SOURCE, fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/9", now.Year(), now.Month(), now.Day()))
-				f.WriteString(fmt.Sprintf("%v", statement))
+				qs_file.WriteString(fmt.Sprintf("%v", statement))
 			}
 
 			for _, subject := range record.MainSubjects {
@@ -278,20 +283,20 @@ func batch(term string) error {
 					statement = AddItemPropertyToItem(item, MAIN_SUBJECT_PROPERTY, drug_wikidata_items[subject.MeshID])
 					statement.AddSource(STATED_IN_SOURCE, PMC_ITEM)
 					statement.AddSource(RETRIEVED_AT_DATE_SOURCE, fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/9", now.Year(), now.Month(), now.Day()))
-					f.WriteString(fmt.Sprintf("%v", statement))
+					qs_file.WriteString(fmt.Sprintf("%v", statement))
 				}
 				if disease_wikidata_items[subject.MeshID] != "" {
 					statement = AddItemPropertyToItem(item, MAIN_SUBJECT_PROPERTY, disease_wikidata_items[subject.MeshID])
 					statement.AddSource(STATED_IN_SOURCE, PMC_ITEM)
 					statement.AddSource(RETRIEVED_AT_DATE_SOURCE, fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/9", now.Year(), now.Month(), now.Day()))
-					f.WriteString(fmt.Sprintf("%v", statement))
+					qs_file.WriteString(fmt.Sprintf("%v", statement))
 				}
 			}
 
-			f.WriteString("\n")
+			qs_file.WriteString("\n")
 		}
 
-		/*main_subjects := ""
+		main_subjects := ""
 		for idx, subject := range record.MainSubjects {
 			if idx != 0 {
 				main_subjects += "; "
@@ -309,10 +314,10 @@ func batch(term string) error {
 			}
 		}
 
-		f.WriteString(fmt.Sprintf("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
+		csv_file.WriteString(fmt.Sprintf("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
 			record.Title, item, record.PMID, record.PMCID, record.License,
 			CC_LICENSE_ITEM_IDS[record.License], main_subjects,
-			record.PublicationDate, record.Publication, record.ISSN, issn_item, record.PublicationType))*/
+			record.PublicationDate, record.Publication, record.ISSN, issn_item, record.PublicationType))
 	}
 
 	return nil
@@ -320,26 +325,26 @@ func batch(term string) error {
 
 func main() {
 
-    var term_feed_path string
-    flag.StringVar(&term_feed_path,"feed", "", "JSON list of terms to search PMC for.")
-    flag.Parse()
+	var term_feed_path string
+	flag.StringVar(&term_feed_path, "feed", "", "JSON list of terms to search PMC for.")
+	flag.Parse()
 
-    f, err := os.Open(term_feed_path)
-    if err != nil {
-        panic(err)
-    }
+	f, err := os.Open(term_feed_path)
+	if err != nil {
+		panic(err)
+	}
 
-    var term_feed []string
-    err = json.NewDecoder(f).Decode(&term_feed)
-    if err != nil {
-        panic(err)
-    }
+	var term_feed []string
+	err = json.NewDecoder(f).Decode(&term_feed)
+	if err != nil {
+		panic(err)
+	}
 
-    for _, term := range term_feed {
-        x := fmt.Sprintf("\"%s\"[Mesh Major Topic] AND Review[ptyp]", term)
-        err := batch(x)
-        if err != nil {
-            panic(err)
-        }
-    }
+	for _, term := range term_feed[:1] {
+		x := fmt.Sprintf("\"%s\"[Mesh Major Topic] AND Review[ptyp]", term)
+		err := batch(x)
+		if err != nil {
+			panic(err)
+		}
+	}
 }

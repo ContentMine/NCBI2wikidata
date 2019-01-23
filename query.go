@@ -18,7 +18,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
+	"net/url"
 	"strings"
 )
 
@@ -82,17 +84,15 @@ func GetItemsFromWikiData(key string, values []string, item_type string) (map[st
 		return results, nil
 	}
 
-	query_string := buildSparqlQuery(key, values, item_type)
+	params := url.Values{}
+	params.Add("query", buildSparqlQuery(key, values, item_type))
 
-	req, err := http.NewRequest("GET", SPARQL_QUERY_URL, nil)
+	req, err := http.NewRequest("POST", SPARQL_QUERY_URL, strings.NewReader(params.Encode()))
 	if err != nil {
 		return nil, err
 	}
-
-	q := req.URL.Query()
-	q.Add("format", "json")
-	q.Add("query", query_string)
-	req.URL.RawQuery = q.Encode()
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Add("Accept", "application/sparql-results+json")
 
 	client := &http.Client{}
 	resp, response_err := client.Do(req)
@@ -123,7 +123,7 @@ func GetItemsFromWikiData(key string, values []string, item_type string) (map[st
 		// not be true, so we just log when we hit issues
 		val := strings.TrimPrefix(binding.Result.Value, "http://www.wikidata.org/entity/")
 		if results[binding.Key.Value] != "" && results[binding.Key.Value] != val {
-			results[binding.Key.Value] += "CLASH"
+			log.Printf("Found duplicate wikidata result for %s with %s", key, binding.Key.Value)
 		} else {
 			results[binding.Key.Value] = val
 		}
