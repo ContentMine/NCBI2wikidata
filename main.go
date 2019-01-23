@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -36,6 +37,8 @@ var CC_LICENSE_ITEM_IDS = map[string]string{
 	"CC BY 2.5": "Q18810333",
 	"CC BY 4.0": "Q20007257",
 }
+
+const EFETCH_BATCH_SIZE = 200
 
 // Load the NCBI open access file list so we can map PMID -> Copyright
 //
@@ -105,11 +108,15 @@ func batch(term string) error {
 		return err
 	}
 
+
+    // Because we use the history feature of the eUtilities API, it doesn't matter how many
+    // things get returned here, we rely on the eFetch API to get all the deets. Hence the
+    // single request here. We really are just doing this to light up things later
 	search_request := ESearchRequest{
 		DB:         "pubmed",
 		APIKey:     os.Getenv("NCBI_API_KEY"),
 		Term:       term,
-		RetMax:     200,
+		RetMax:     1,
 		UseHistory: true,
 	}
 
@@ -118,104 +125,113 @@ func batch(term string) error {
 		return rerr
 	}
 
-	log.Printf("Search returned %d of %s matches.\n", len(search_resp.IDs), search_resp.Count)
+    count, count_err := strconv.Atoi(search_resp.Count)
+    if count_err != nil {
+        return count_err
+    }
+	log.Printf("Search returned %d matches for %s.\n", count, term)
 
-	fetch_request := EFetchHistoryRequest{
-		DB:       "pubmed",
-		WebEnv:   search_resp.WebEnv,
-		QueryKey: search_resp.QueryKey,
-		APIKey:   os.Getenv("NCBI_API_KEY"),
-		RetMax:   200,
-	}
-
-	fetch_resp, ferr := fetch_request.Do()
-	if ferr != nil {
-		return ferr
-	}
-
-	log.Printf("Fetched %d articles for %s.\n", len(fetch_resp.Articles), term)
-
+    // Things to build up as we fetch the results from PMC...
 	records := make([]Record, 0)
-
-	// Query wikidata for some information
 	pmcid_list := make([]string, 0)
 	issn_list := make([]string, 0)
 	main_subject_list := make([]string, 0)
 
-	for _, article := range fetch_resp.Articles {
+	for i := 0; i < count; i += EFETCH_BATCH_SIZE {
 
-		// Is there a PMCID for this paper
-		var pmcid string
-		for _, articleID := range article.PubMedData.ArticleIDList.ArticleIDs {
-			if articleID.IDType == "pmc" {
-				pmcid = strings.TrimPrefix(articleID.ID, "PMC")
-				break
-			}
-		}
-		if pmcid != "" {
-			pmcid_list = append(pmcid_list, pmcid)
-		}
+        fetch_request := EFetchHistoryRequest{
+            DB:       "pubmed",
+            WebEnv:   search_resp.WebEnv,
+            QueryKey: search_resp.QueryKey,
+            APIKey:   os.Getenv("NCBI_API_KEY"),
+            RetStart: i,
+            RetMax:   EFETCH_BATCH_SIZE,
+        }
+        time.Sleep(100 * time.Millisecond)
 
-		var license string
-		if l, ok := license_lookup[article.MedlineCitation.PMID]; ok {
-			license = l
-		}
-		if license == "" {
-			// didn't find one with PMID, try PMCID
-			if l, ok := license_lookup[pmcid]; ok {
-				license = l
-			}
-		}
+        fetch_resp, ferr := fetch_request.Do()
+        if ferr != nil {
+            return ferr
+        }
 
-		if license == "" {
-			continue
-		}
+        log.Printf("Fetched %d articles for %s.\n", len(fetch_resp.Articles), term)
 
-		subjects := make([]MeshDescriptorName, 0)
-		for _, mesh := range article.MedlineCitation.MeshHeadingList.MeshHeadings {
-			major := mesh.DescriptorName.MajorTopicYN == "Y"
-			for _, qual := range mesh.QualifierNames {
-				major = major || qual.MajorTopicYN == "Y"
-			}
-			if major {
-				main_subject_list = append(main_subject_list, mesh.DescriptorName.MeshID)
-				subjects = append(subjects, mesh.DescriptorName)
-			}
-		}
 
-		p := article.MedlineCitation.Article[0].Journal.JournalIssue.PubDate
-		pubdate := fmt.Sprintf("%s-%d", p.Month, p.Year)
-		if p.Year == 0 || p.Month == "" {
-			p := article.MedlineCitation.Article[0].ArticleDate
-			pubdate = fmt.Sprintf("%d-%d", p.Month, p.Year)
-		}
+        for _, article := range fetch_resp.Articles {
 
-		var pubtype string
-		if len(article.MedlineCitation.Article[0].PublicationTypeList.PublicationTypes) > 0 {
-			pubtype = article.MedlineCitation.Article[0].PublicationTypeList.PublicationTypes[0].Type
-		}
+            // Is there a PMCID for this paper
+            var pmcid string
+            for _, articleID := range article.PubMedData.ArticleIDList.ArticleIDs {
+                if articleID.IDType == "pmc" {
+                    pmcid = strings.TrimPrefix(articleID.ID, "PMC")
+                    break
+                }
+            }
+            if pmcid != "" {
+                pmcid_list = append(pmcid_list, pmcid)
+            }
 
-		issn := article.MedlineCitation.Article[0].Journal.ISSN
-		if issn != "" {
-			issn_list = append(issn_list, issn)
-		}
+            var license string
+            if l, ok := license_lookup[article.MedlineCitation.PMID]; ok {
+                license = l
+            }
+            if license == "" {
+                // didn't find one with PMID, try PMCID
+                if l, ok := license_lookup[pmcid]; ok {
+                    license = l
+                }
+            }
 
-		r := Record{
-			Title:           article.MedlineCitation.Article[0].ArticleTitle,
-			PMID:            article.MedlineCitation.PMID,
-			PMCID:           pmcid,
-			License:         license,
-			MainSubjects:    subjects,
-			PublicationDate: pubdate,
-			Publication:     article.MedlineCitation.Article[0].Journal.Title,
-			ISSN:            issn,
-			PublicationType: pubtype,
-		}
+            if license == "" {
+                continue
+            }
 
-		records = append(records, r)
-	}
+            subjects := make([]MeshDescriptorName, 0)
+            for _, mesh := range article.MedlineCitation.MeshHeadingList.MeshHeadings {
+                major := mesh.DescriptorName.MajorTopicYN == "Y"
+                for _, qual := range mesh.QualifierNames {
+                    major = major || qual.MajorTopicYN == "Y"
+                }
+                if major {
+                    main_subject_list = append(main_subject_list, mesh.DescriptorName.MeshID)
+                    subjects = append(subjects, mesh.DescriptorName)
+                }
+            }
 
-	log.Printf("We got information on %d records for %s.\n", len(records), term)
+            p := article.MedlineCitation.Article[0].Journal.JournalIssue.PubDate
+            pubdate := fmt.Sprintf("%s-%d", p.Month, p.Year)
+            if p.Year == 0 || p.Month == "" {
+                p := article.MedlineCitation.Article[0].ArticleDate
+                pubdate = fmt.Sprintf("%d-%d", p.Month, p.Year)
+            }
+
+            var pubtype string
+            if len(article.MedlineCitation.Article[0].PublicationTypeList.PublicationTypes) > 0 {
+                pubtype = article.MedlineCitation.Article[0].PublicationTypeList.PublicationTypes[0].Type
+            }
+
+            issn := article.MedlineCitation.Article[0].Journal.ISSN
+            if issn != "" {
+                issn_list = append(issn_list, issn)
+            }
+
+            r := Record{
+                Title:           article.MedlineCitation.Article[0].ArticleTitle,
+                PMID:            article.MedlineCitation.PMID,
+                PMCID:           pmcid,
+                License:         license,
+                MainSubjects:    subjects,
+                PublicationDate: pubdate,
+                Publication:     article.MedlineCitation.Article[0].Journal.Title,
+                ISSN:            issn,
+                PublicationType: pubtype,
+            }
+
+            records = append(records, r)
+        }
+    }
+
+	log.Printf("We got information on %d records.\n", len(records))
 
 	pmcid_wikidata_items, perr := PMCIDsToWDItem(pmcid_list)
 	if perr != nil {
