@@ -115,9 +115,9 @@ func (e *ESearchRequest) Do() (*ESearchResult, error) {
 	req.URL.RawQuery = q.Encode()
 
 	client := &http.Client{}
-	resp, response_err := client.Do(req)
-	if response_err != nil {
-		return nil, response_err
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
 	}
 	defer resp.Body.Close()
 
