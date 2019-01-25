@@ -152,12 +152,7 @@ type Record struct {
 	PMCID            string
 }
 
-func batch(term string, ncbi_api_key string) error {
-
-	license_lookup, err := LoadLicenses(NCBI_FILE_FILE)
-	if err != nil {
-		return err
-	}
+func batch(term string, ncbi_api_key string, license_lookup map[string]string, csv_file *os.File, qs_file *os.File) error {
 
 	// Because we use the history feature of the eUtilities API, it doesn't matter how many
 	// things get returned here, we rely on the eFetch API to get all the deets. Hence the
@@ -328,18 +323,6 @@ func batch(term string, ncbi_api_key string) error {
 		return fmt.Errorf("Failed fetching %d disease items: %v", len(main_subject_list), err)
 	}
 
-	qs_file, err := os.Create("results_quickstatements.txt")
-	if err != nil {
-		return err
-	}
-	defer qs_file.Close()
-	csv_file, err := os.Create("results.csv")
-	if err != nil {
-		return err
-	}
-	defer csv_file.Close()
-	csv_file.WriteString("Title\tItem\tPMID\tPMCID\tLicense PMC\tLicense EPMC\tLicense Item\tMain Subjects\tPublication Date\tPublication\tISSN\tISSN item\tPublication Type\n")
-
 	now := time.Now()
 
 	for _, record := range records {
@@ -449,9 +432,27 @@ func main() {
 		panic(err)
 	}
 
+	license_lookup, err := LoadLicenses(NCBI_FILE_FILE)
+	if err != nil {
+		panic(err)
+	}
+
+	qs_file, err := os.Create("results_quickstatements.txt")
+	if err != nil {
+		panic(err)
+	}
+	defer qs_file.Close()
+	csv_file, err := os.Create("results.csv")
+	if err != nil {
+		panic(err)
+	}
+	defer csv_file.Close()
+	csv_file.WriteString("Title\tItem\tPMID\tPMCID\tLicense PMC\tLicense EPMC\tLicense Item\tMain Subjects\tPublication Date\tPublication\tISSN\tISSN item\tPublication Type\n")
+
+
 	for _, term := range term_feed {
 		x := fmt.Sprintf("\"%s\"[Mesh Major Topic] AND Review[ptyp]", term)
-		err := batch(x, ncbi_api_key)
+		err := batch(x, ncbi_api_key, license_lookup, csv_file, qs_file)
 		if err != nil {
 			panic(err)
 		}
