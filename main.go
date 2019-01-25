@@ -19,6 +19,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"net/url"
 	"os"
@@ -27,9 +28,51 @@ import (
 	"time"
 
 	europmc "github.com/ContentMine/go-europmc"
+	"github.com/jlaffaye/ftp"
 )
 
 const EFETCH_BATCH_SIZE = 200
+
+const NCBI_LICENSE_URL = "ftp://ftp.ncbi.nlm.nih.gov:21/pub/pmc/oa_file_list.txt"
+const NCBI_FILE_FILE = "oa_file_list.txt"
+
+
+func FetchLicenses(target_filename string, ftp_location string) error {
+    url, err := url.Parse(ftp_location)
+    if err != nil {
+        return err
+    }
+
+    if url.Scheme != "ftp" {
+        return fmt.Errorf("We require an FTP URL, not %s", ftp_location)
+    }
+
+    client, err := ftp.Dial(url.Host)
+    if err != nil {
+        return err
+    }
+
+    err = client.Login("anonymous", "anonymous")
+    if err != nil {
+        return err
+    }
+
+    resp, err := client.Retr(url.Path)
+    if err != nil {
+        return err
+    }
+    defer resp.Close()
+
+    f, err := os.Create(target_filename)
+    if err != nil {
+        return err
+    }
+    defer f.Close()
+
+    _, err = io.Copy(f, resp)
+    return err
+}
+
 
 // Load the NCBI open access file list so we can map PMID -> Copyright
 //
@@ -40,7 +83,22 @@ func LoadLicenses(filename string) (map[string]string, error) {
 
 	f, err := os.Open(filename)
 	if err != nil {
-		return nil, err
+	    if os.IsNotExist(err) {
+	        // File just not there, so try to fetch it first
+	        log.Printf("Fetching PMC open access list, this may take some time...")
+            err := FetchLicenses(filename, NCBI_LICENSE_URL)
+            if err != nil {
+                return nil, err
+            }
+            log.Printf("Fetching PMC open access list complete.")
+            // Now try again
+            f, err = os.Open(filename)
+            if err != nil {
+                return nil, err
+            }
+	    } else {
+     		return nil, err
+     	}
 	}
 	defer f.Close()
 
@@ -96,7 +154,7 @@ type Record struct {
 
 func batch(term string, ncbi_api_key string) error {
 
-	license_lookup, err := LoadLicenses("oa_file_list.txt")
+	license_lookup, err := LoadLicenses(NCBI_FILE_FILE)
 	if err != nil {
 		return err
 	}
@@ -112,14 +170,14 @@ func batch(term string, ncbi_api_key string) error {
 		UseHistory: true,
 	}
 
-	search_resp, rerr := search_request.Do()
-	if rerr != nil {
-		return rerr
+	search_resp, err := search_request.Do()
+	if err != nil {
+		return err
 	}
 
-	count, count_err := strconv.Atoi(search_resp.Count)
-	if count_err != nil {
-		return count_err
+	count, err := strconv.Atoi(search_resp.Count)
+	if err != nil {
+		return err
 	}
 	log.Printf("Search returned %d matches for %s.\n", count, term)
 
@@ -143,9 +201,9 @@ func batch(term string, ncbi_api_key string) error {
 		// ensures we'll never hit this. We could do better, but it's not worth the complexity IMHO.
 		time.Sleep(100 * time.Millisecond)
 
-		fetch_resp, ferr := fetch_request.Do()
-		if ferr != nil {
-			return ferr
+		fetch_resp, err := fetch_request.Do()
+		if err != nil {
+			return err
 		}
 
 		log.Printf("Fetched %d articles for %s.\n", len(fetch_resp.Articles), term)
@@ -180,9 +238,9 @@ func batch(term string, ncbi_api_key string) error {
 			}
 
 			// Go ask EPMC about the license to get more details
-			paper, paper_err := europmc.FetchFullText(pmcid)
-			if paper_err != nil {
-				log.Printf("Failed to get EPMC data for %s: %v", pmcid, paper_err)
+			paper, err := europmc.FetchFullText(pmcid)
+			if err != nil {
+				log.Printf("Failed to get EPMC data for %s: %v", pmcid, err)
 			}
 			license_info := paper.Front.ArticleMeta.Permissions.License
 			if license_info.Link == "" {
@@ -253,31 +311,31 @@ func batch(term string, ncbi_api_key string) error {
 
 	log.Printf("We got information on %d records.\n", len(records))
 
-	pmcid_wikidata_items, perr := PMCIDsToWDItem(pmcid_list)
-	if perr != nil {
-		return fmt.Errorf("Failed fetching %d PMCID items: %v", len(pmcid_list), perr)
+	pmcid_wikidata_items, err := PMCIDsToWDItem(pmcid_list)
+	if err != nil {
+		return fmt.Errorf("Failed fetching %d PMCID items: %v", len(pmcid_list), err)
 	}
-	issn_wikidata_items, ierr := ISSNsToWDItem(issn_list)
-	if ierr != nil {
-		return fmt.Errorf("Failed fetching %d ISSN items: %v", len(issn_list), ierr)
+	issn_wikidata_items, err := ISSNsToWDItem(issn_list)
+	if err != nil {
+		return fmt.Errorf("Failed fetching %d ISSN items: %v", len(issn_list), err)
 	}
-	drug_wikidata_items, d1err := DrugsToWDItem(main_subject_list)
-	if d1err != nil {
-		return fmt.Errorf("Failed fetching drug %d items: %v", len(main_subject_list), d1err)
+	drug_wikidata_items, err := DrugsToWDItem(main_subject_list)
+	if err != nil {
+		return fmt.Errorf("Failed fetching drug %d items: %v", len(main_subject_list), err)
 	}
-	disease_wikidata_items, d2err := DiseasesToWDItem(main_subject_list)
-	if d2err != nil {
-		return fmt.Errorf("Failed fetching %d disease items: %v", len(main_subject_list), d2err)
+	disease_wikidata_items, err := DiseasesToWDItem(main_subject_list)
+	if err != nil {
+		return fmt.Errorf("Failed fetching %d disease items: %v", len(main_subject_list), err)
 	}
 
-	qs_file, qe := os.Create("results_quickstatements.txt")
-	if qe != nil {
-		return qe
+	qs_file, err := os.Create("results_quickstatements.txt")
+	if err != nil {
+		return err
 	}
 	defer qs_file.Close()
-	csv_file, ce := os.Create("results.csv")
-	if ce != nil {
-		return ce
+	csv_file, err := os.Create("results.csv")
+	if err != nil {
+		return err
 	}
 	defer csv_file.Close()
 	csv_file.WriteString("Title\tItem\tPMID\tPMCID\tLicense PMC\tLicense EPMC\tLicense Item\tMain Subjects\tPublication Date\tPublication\tISSN\tISSN item\tPublication Type\n")
