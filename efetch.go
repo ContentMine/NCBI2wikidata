@@ -183,9 +183,9 @@ func (e *EFetchHistoryRequest) Do() (PubmedArticleSet, error) {
 	req.URL.RawQuery = q.Encode()
 
 	client := &http.Client{}
-	resp, response_err := client.Do(req)
-	if response_err != nil {
-		return PubmedArticleSet{}, response_err
+	resp, err := client.Do(req)
+	if err != nil {
+		return PubmedArticleSet{}, err
 	}
 	defer resp.Body.Close()
 
