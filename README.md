@@ -1,4 +1,4 @@
-Tool for finding PubMed data and generating wikidata updates from that
+Tool for finding open access PubMed data and generating wikidata updates from that
 ---------------
 
 This tool takes in a list of subject terms to search PubMed for, and outputs a set of updates to be applied to wikidata from that source.
@@ -26,4 +26,4 @@ This tool primarily gets the information by looking up reviewed publications on 
 
 That is to say, it looks up each subject in term to see which papers list it as a Major Topic, and we restrict our publication type to reviews.
 
-In addition to PubMed,
+In addition to PubMed, the tool will lookup more detailed license information from EuroPMC where available, as the PubMed open access license information lacks detailed versions.
