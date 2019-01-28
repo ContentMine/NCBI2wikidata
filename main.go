@@ -36,43 +36,73 @@ const EFETCH_BATCH_SIZE = 200
 const NCBI_LICENSE_URL = "ftp://ftp.ncbi.nlm.nih.gov:21/pub/pmc/oa_file_list.txt"
 const NCBI_FILE_FILE = "oa_file_list.txt"
 
-
-func FetchLicenses(target_filename string, ftp_location string) error {
-    url, err := url.Parse(ftp_location)
-    if err != nil {
-        return err
-    }
-
-    if url.Scheme != "ftp" {
-        return fmt.Errorf("We require an FTP URL, not %s", ftp_location)
-    }
-
-    client, err := ftp.Dial(url.Host)
-    if err != nil {
-        return err
-    }
-
-    err = client.Login("anonymous", "anonymous")
-    if err != nil {
-        return err
-    }
-
-    resp, err := client.Retr(url.Path)
-    if err != nil {
-        return err
-    }
-    defer resp.Close()
-
-    f, err := os.Create(target_filename)
-    if err != nil {
-        return err
-    }
-    defer f.Close()
-
-    _, err = io.Copy(f, resp)
-    return err
+var MONTH_TO_INT = map[string]int{
+	"jan": 1,
+	"feb": 2,
+	"mar": 3,
+	"apr": 4,
+	"may": 5,
+	"jun": 6,
+	"jul": 7,
+	"aug": 8,
+	"sep": 9,
+	"oct": 10,
+	"nov": 11,
+	"dec": 12,
 }
 
+func monthStringToInt(m string) (int, error) {
+
+	// Sometimes it's a number as a string
+	x, err := strconv.Atoi(m)
+	if err == nil {
+		return x, nil
+	}
+
+	// sometimes it's as human readable shorted text
+	v, ok := MONTH_TO_INT[strings.ToLower(m)]
+	if ok {
+		return v, nil
+	}
+
+	return 0, fmt.Errorf("Failed to translate month %s to number", m)
+}
+
+func FetchLicenses(target_filename string, ftp_location string) error {
+	url, err := url.Parse(ftp_location)
+	if err != nil {
+		return err
+	}
+
+	if url.Scheme != "ftp" {
+		return fmt.Errorf("We require an FTP URL, not %s", ftp_location)
+	}
+
+	client, err := ftp.Dial(url.Host)
+	if err != nil {
+		return err
+	}
+
+	err = client.Login("anonymous", "anonymous")
+	if err != nil {
+		return err
+	}
+
+	resp, err := client.Retr(url.Path)
+	if err != nil {
+		return err
+	}
+	defer resp.Close()
+
+	f, err := os.Create(target_filename)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	_, err = io.Copy(f, resp)
+	return err
+}
 
 // Load the NCBI open access file list so we can map PMID -> Copyright
 //
@@ -83,22 +113,22 @@ func LoadLicenses(filename string) (map[string]string, error) {
 
 	f, err := os.Open(filename)
 	if err != nil {
-	    if os.IsNotExist(err) {
-	        // File just not there, so try to fetch it first
-	        log.Printf("Fetching PMC open access list, this may take some time...")
-            err := FetchLicenses(filename, NCBI_LICENSE_URL)
-            if err != nil {
-                return nil, err
-            }
-            log.Printf("Fetching PMC open access list complete.")
-            // Now try again
-            f, err = os.Open(filename)
-            if err != nil {
-                return nil, err
-            }
-	    } else {
-     		return nil, err
-     	}
+		if os.IsNotExist(err) {
+			// File just not there, so try to fetch it first
+			log.Printf("Fetching PMC open access list, this may take some time...")
+			err := FetchLicenses(filename, NCBI_LICENSE_URL)
+			if err != nil {
+				return nil, err
+			}
+			log.Printf("Fetching PMC open access list complete.")
+			// Now try again
+			f, err = os.Open(filename)
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			return nil, err
+		}
 	}
 	defer f.Close()
 
@@ -141,7 +171,7 @@ func LoadLicenses(filename string) (map[string]string, error) {
 type Record struct {
 	Title            string
 	MainSubjects     []MeshDescriptorName
-	PublicationType  string
+	IsReview         bool
 	PublicationDate  string
 	Publication      string
 	ISSN             string
@@ -269,16 +299,33 @@ func batch(term string, ncbi_api_key string, license_lookup map[string]string, c
 				}
 			}
 
+			pubdate := ""
 			p := article.MedlineCitation.Article[0].Journal.JournalIssue.PubDate
-			pubdate := fmt.Sprintf("%s-%d", p.Month, p.Year)
-			if p.Year == 0 || p.Month == "" {
+			if p.Month != "" && p.Year != 0 {
+				pmonth, err := monthStringToInt(p.Month)
+				if err == nil && p.Year != 0 {
+					if p.Day == 0 {
+						p.Day = 1
+					}
+					pubdate = fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/9", p.Year, pmonth, p.Day)
+				}
+			}
+			if pubdate == "" {
 				p := article.MedlineCitation.Article[0].ArticleDate
-				pubdate = fmt.Sprintf("%d-%d", p.Month, p.Year)
+				if p.Month != 0 && p.Year != 0 {
+					if p.Day == 0 {
+						p.Day = 1
+					}
+					pubdate = fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/9", p.Year, p.Month, p.Day)
+				}
 			}
 
-			var pubtype string
-			if len(article.MedlineCitation.Article[0].PublicationTypeList.PublicationTypes) > 0 {
-				pubtype = article.MedlineCitation.Article[0].PublicationTypeList.PublicationTypes[0].Type
+			is_review := false
+			for _, pubtype := range article.MedlineCitation.Article[0].PublicationTypeList.PublicationTypes {
+				if pubtype.Type == "Review" || pubtype.Type == "Systematic Review" {
+					is_review = true
+					break
+				}
 			}
 
 			issn := article.MedlineCitation.Article[0].Journal.ISSN
@@ -297,7 +344,7 @@ func batch(term string, ncbi_api_key string, license_lookup map[string]string, c
 				PublicationDate:  pubdate,
 				Publication:      article.MedlineCitation.Article[0].Journal.Title,
 				ISSN:             issn,
-				PublicationType:  pubtype,
+				IsReview:         is_review,
 			}
 
 			records = append(records, r)
@@ -350,15 +397,29 @@ func batch(term string, ncbi_api_key string, license_lookup map[string]string, c
 			statement.AddSource(RETRIEVED_AT_DATE_SOURCE, fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/9", now.Year(), now.Month(), now.Day()))
 			qs_file.WriteString(fmt.Sprintf("%v", statement))
 
+			if record.PublicationDate != "" {
+				statement = AddStringPropertyToItem(item, PUBLICATION_DATE_PROPERTY, record.PublicationDate)
+				statement.AddSource(STATED_IN_SOURCE, PMC_ITEM)
+				statement.AddSource(RETRIEVED_AT_DATE_SOURCE, fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/9", now.Year(), now.Month(), now.Day()))
+				qs_file.WriteString(fmt.Sprintf("%v", statement))
+			}
+
+			if record.IsReview {
+				statement := AddItemPropertyToItem(item, INSTANCE_OF_PROPERTY, REVIEW_ARTICLE_ITEM)
+				statement.AddSource(STATED_IN_SOURCE, PMC_ITEM)
+				statement.AddSource(RETRIEVED_AT_DATE_SOURCE, fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/9", now.Year(), now.Month(), now.Day()))
+				qs_file.WriteString(fmt.Sprintf("%v", statement))
+			}
+
 			if license_item != "" {
-				statement = AddItemPropertyToItem(item, LICENSE_PROPERTY, license_item)
+				statement := AddItemPropertyToItem(item, LICENSE_PROPERTY, license_item)
 				statement.AddSource(license_source_property, license_source)
 				statement.AddSource(RETRIEVED_AT_DATE_SOURCE, fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/9", now.Year(), now.Month(), now.Day()))
 				qs_file.WriteString(fmt.Sprintf("%v", statement))
 			}
 
 			if issn_item != "" {
-				statement = AddItemPropertyToItem(item, PUBLICATION_PROPERTY, issn_item)
+				statement := AddItemPropertyToItem(item, PUBLICATION_PROPERTY, issn_item)
 				statement.AddSource(STATED_IN_SOURCE, PMC_ITEM)
 				statement.AddSource(RETRIEVED_AT_DATE_SOURCE, fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/9", now.Year(), now.Month(), now.Day()))
 				qs_file.WriteString(fmt.Sprintf("%v", statement))
@@ -400,10 +461,15 @@ func batch(term string, ncbi_api_key string, license_lookup map[string]string, c
 			}
 		}
 
+		review_str := "false"
+		if record.IsReview {
+			review_str = "true"
+		}
+
 		csv_file.WriteString(fmt.Sprintf("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
 			record.Title, item, record.PMID, record.PMCID, record.PMCLicense,
 			record.EPMCLicenseLink, license_item, main_subjects,
-			record.PublicationDate, record.Publication, record.ISSN, issn_item, record.PublicationType))
+			record.PublicationDate, record.Publication, record.ISSN, issn_item, review_str))
 	}
 
 	return nil
@@ -447,8 +513,7 @@ func main() {
 		panic(err)
 	}
 	defer csv_file.Close()
-	csv_file.WriteString("Title\tItem\tPMID\tPMCID\tLicense PMC\tLicense EPMC\tLicense Item\tMain Subjects\tPublication Date\tPublication\tISSN\tISSN item\tPublication Type\n")
-
+	csv_file.WriteString("Title\tItem\tPMID\tPMCID\tLicense PMC\tLicense EPMC\tLicense Item\tMain Subjects\tPublication Date\tPublication\tISSN\tISSN item\tIs Review Article\n")
 
 	for _, term := range term_feed {
 		x := fmt.Sprintf("\"%s\"[Mesh Major Topic] AND Review[ptyp]", term)
