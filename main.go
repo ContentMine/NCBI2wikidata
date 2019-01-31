@@ -389,39 +389,39 @@ func batch(term string, ncbi_api_key string, license_lookup map[string]string, c
 		if item != "" {
 			statement := AddStringPropertyToItem(item, PMID_PROPERTY, record.PMID)
 			statement.AddSource(STATED_IN_SOURCE, PMC_ITEM)
-			statement.AddSource(RETRIEVED_AT_DATE_SOURCE, fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/9", now.Year(), now.Month(), now.Day()))
+			statement.AddSource(RETRIEVED_AT_DATE_SOURCE, fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/11", now.Year(), now.Month(), now.Day()))
 			qs_file.WriteString(fmt.Sprintf("%v", statement))
 
 			statement = AddStringPropertyToItem(item, PMCID_PROPERTY, record.PMCID)
 			statement.AddSource(STATED_IN_SOURCE, PMC_ITEM)
-			statement.AddSource(RETRIEVED_AT_DATE_SOURCE, fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/9", now.Year(), now.Month(), now.Day()))
+			statement.AddSource(RETRIEVED_AT_DATE_SOURCE, fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/11", now.Year(), now.Month(), now.Day()))
 			qs_file.WriteString(fmt.Sprintf("%v", statement))
 
 			if record.PublicationDate != "" {
 				statement = AddStringPropertyToItem(item, PUBLICATION_DATE_PROPERTY, record.PublicationDate)
 				statement.AddSource(STATED_IN_SOURCE, PMC_ITEM)
-				statement.AddSource(RETRIEVED_AT_DATE_SOURCE, fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/9", now.Year(), now.Month(), now.Day()))
+				statement.AddSource(RETRIEVED_AT_DATE_SOURCE, fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/11", now.Year(), now.Month(), now.Day()))
 				qs_file.WriteString(fmt.Sprintf("%v", statement))
 			}
 
 			if record.IsReview {
 				statement := AddItemPropertyToItem(item, INSTANCE_OF_PROPERTY, REVIEW_ARTICLE_ITEM)
 				statement.AddSource(STATED_IN_SOURCE, PMC_ITEM)
-				statement.AddSource(RETRIEVED_AT_DATE_SOURCE, fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/9", now.Year(), now.Month(), now.Day()))
+				statement.AddSource(RETRIEVED_AT_DATE_SOURCE, fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/11", now.Year(), now.Month(), now.Day()))
 				qs_file.WriteString(fmt.Sprintf("%v", statement))
 			}
 
 			if license_item != "" {
 				statement := AddItemPropertyToItem(item, LICENSE_PROPERTY, license_item)
 				statement.AddSource(license_source_property, license_source)
-				statement.AddSource(RETRIEVED_AT_DATE_SOURCE, fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/9", now.Year(), now.Month(), now.Day()))
+				statement.AddSource(RETRIEVED_AT_DATE_SOURCE, fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/11", now.Year(), now.Month(), now.Day()))
 				qs_file.WriteString(fmt.Sprintf("%v", statement))
 			}
 
 			if issn_item != "" {
 				statement := AddItemPropertyToItem(item, PUBLICATION_PROPERTY, issn_item)
 				statement.AddSource(STATED_IN_SOURCE, PMC_ITEM)
-				statement.AddSource(RETRIEVED_AT_DATE_SOURCE, fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/9", now.Year(), now.Month(), now.Day()))
+				statement.AddSource(RETRIEVED_AT_DATE_SOURCE, fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/11", now.Year(), now.Month(), now.Day()))
 				qs_file.WriteString(fmt.Sprintf("%v", statement))
 			}
 
@@ -429,13 +429,13 @@ func batch(term string, ncbi_api_key string, license_lookup map[string]string, c
 				if drug_wikidata_items[subject.MeshID] != "" {
 					statement = AddItemPropertyToItem(item, MAIN_SUBJECT_PROPERTY, drug_wikidata_items[subject.MeshID])
 					statement.AddSource(STATED_IN_SOURCE, PMC_ITEM)
-					statement.AddSource(RETRIEVED_AT_DATE_SOURCE, fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/9", now.Year(), now.Month(), now.Day()))
+					statement.AddSource(RETRIEVED_AT_DATE_SOURCE, fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/11", now.Year(), now.Month(), now.Day()))
 					qs_file.WriteString(fmt.Sprintf("%v", statement))
 				}
 				if disease_wikidata_items[subject.MeshID] != "" {
 					statement = AddItemPropertyToItem(item, MAIN_SUBJECT_PROPERTY, disease_wikidata_items[subject.MeshID])
 					statement.AddSource(STATED_IN_SOURCE, PMC_ITEM)
-					statement.AddSource(RETRIEVED_AT_DATE_SOURCE, fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/9", now.Year(), now.Month(), now.Day()))
+					statement.AddSource(RETRIEVED_AT_DATE_SOURCE, fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/11", now.Year(), now.Month(), now.Day()))
 					qs_file.WriteString(fmt.Sprintf("%v", statement))
 				}
 			}

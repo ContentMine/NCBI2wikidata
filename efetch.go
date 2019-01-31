@@ -110,7 +110,7 @@ type MeshDescriptorName struct {
 	XMLName      xml.Name `xml:"DescriptorName"`
 	Name         string   `xml:",chardata"`
 	MeshID       string   `xml:"UI,attr"`
-	MajorTopicYN string   `xml:MajorTopicYN,attr"`
+	MajorTopicYN string   `xml:"MajorTopicYN,attr"`
 }
 
 type MeshQualifierName struct {

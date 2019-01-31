@@ -27,3 +27,30 @@ This tool primarily gets the information by looking up reviewed publications on 
 That is to say, it looks up each subject in term to see which papers list it as a Major Topic, and we restrict our publication type to reviews.
 
 In addition to PubMed, the tool will lookup more detailed license information from EuroPMC where available, as the PubMed open access license information lacks detailed versions.
+
+
+
+Building
+===========
+
+ScienceSourceIngest is written in Go, and built with Make. If your system has both the Go toolchain installed and Make, then you should be able to just run:
+
+```make```
+
+And the tool will be built.
+
+
+License
+============
+
+This software is copyright Content Mine Ltd 2019, and released under the Apache 2.0 License.
+
+
+Dependencies
+============
+
+Relies on
+
+* https://github.com/ContentMine/wikibase
+* https://github.com/ContentMine/go-europmc
+* https://github.com/jlaffaye/ftp
