@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strings"
 )
 
 const EFETCH_URL string = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
@@ -205,4 +206,90 @@ func (e *EFetchHistoryRequest) Do() (PubmedArticleSet, error) {
 	}
 
 	return efetch_resp, nil
+}
+
+func (article PubmedArticle) GetPMID() string {
+	return article.MedlineCitation.PMID
+}
+
+func (article PubmedArticle) GetPMCID() string {
+
+	for _, articleID := range article.PubMedData.ArticleIDList.ArticleIDs {
+		if articleID.IDType == "pmc" {
+			return strings.TrimPrefix(articleID.ID, "PMC")
+		}
+	}
+	return ""
+}
+
+func (article PubmedArticle) GetMajorTopics() []MeshDescriptorName {
+
+	subjects := make([]MeshDescriptorName, 0)
+	for _, mesh := range article.MedlineCitation.MeshHeadingList.MeshHeadings {
+		major := mesh.DescriptorName.MajorTopicYN == "Y"
+		for _, qual := range mesh.QualifierNames {
+			major = major || qual.MajorTopicYN == "Y"
+		}
+		if major {
+			subjects = append(subjects, mesh.DescriptorName)
+		}
+	}
+
+	return subjects
+}
+
+func (article PubmedArticle) GetPublicationDateString() string {
+
+	pubdate := ""
+	p := article.MedlineCitation.Article[0].Journal.JournalIssue.PubDate
+	if p.Month != "" && p.Year != 0 {
+		pmonth, err := monthStringToInt(p.Month)
+		if err == nil && p.Year != 0 {
+			if p.Day == 0 {
+				p.Day = 1
+			}
+			pubdate = fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/11", p.Year, pmonth, p.Day)
+		}
+	}
+	if pubdate == "" {
+		p := article.MedlineCitation.Article[0].ArticleDate
+		if p.Month != 0 && p.Year != 0 {
+			if p.Day == 0 {
+				p.Day = 1
+			}
+			pubdate = fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/11", p.Year, p.Month, p.Day)
+		}
+	}
+
+	return pubdate
+}
+
+func (article PubmedArticle) IsReview() bool {
+
+	for _, pubtype := range article.MedlineCitation.Article[0].PublicationTypeList.PublicationTypes {
+		if pubtype.Type == "Review" || pubtype.Type == "Systematic Review" {
+			return true
+		}
+	}
+	return false
+}
+
+func (article PubmedArticle) IsRetracted() bool {
+
+	for _, pubtype := range article.MedlineCitation.Article[0].PublicationTypeList.PublicationTypes {
+		if pubtype.Type == "Retracted Publication" {
+			return true
+		}
+	}
+	return false
+}
+
+func (article PubmedArticle) IsRetraction() bool {
+
+	for _, pubtype := range article.MedlineCitation.Article[0].PublicationTypeList.PublicationTypes {
+		if pubtype.Type == "Retraction of Publication" {
+			return true
+		}
+	}
+	return false
 }

@@ -1,0 +1,552 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PubmedArticleSet PUBLIC "-//NLM//DTD PubMedArticle, 1st January 2019//EN" "https://dtd.nlm.nih.gov/ncbi/pubmed/out/pubmed_190101.dtd">
+<PubmedArticleSet>
+<PubmedArticle>
+    <MedlineCitation Status="MEDLINE" Owner="NLM">
+        <PMID Version="1">27685632</PMID>
+        <DateCompleted>
+            <Year>2017</Year>
+            <Month>10</Month>
+            <Day>10</Day>
+        </DateCompleted>
+        <DateRevised>
+            <Year>2018</Year>
+            <Month>12</Month>
+            <Day>02</Day>
+        </DateRevised>
+        <Article PubModel="Electronic">
+            <Journal>
+                <ISSN IssnType="Electronic">2041-4889</ISSN>
+                <JournalIssue CitedMedium="Internet">
+                    <Volume>7</Volume>
+                    <Issue>9</Issue>
+                    <PubDate>
+                        <Year>2016</Year>
+                        <Month>09</Month>
+                        <Day>29</Day>
+                    </PubDate>
+                </JournalIssue>
+                <Title>Cell death &amp; disease</Title>
+                <ISOAbbreviation>Cell Death Dis</ISOAbbreviation>
+            </Journal>
+            <ArticleTitle>Hsa-miR-623 suppresses tumor progression in human lung adenocarcinoma.</ArticleTitle>
+            <Pagination>
+                <MedlinePgn>e2388</MedlinePgn>
+            </Pagination>
+            <ELocationID EIdType="doi" ValidYN="Y">10.1038/cddis.2016.260</ELocationID>
+            <Abstract>
+                <AbstractText>Our previous study revealed that Ku80 was overexpressed in lung cancer tissues and hsa-miR-623 regulated the Ku80 expression; however, the detailed function of hsa-miR-623 in lung cancer was unclear. We identified that hsa-miR-623 bound to the 3'-UTR of Ku80 mRNA, thus significantly decreasing Ku80 expression in lung adenocarcinoma cells. Hsa-miR-623 was downregulated in lung adenocarcinoma tissues compared with corresponding non-tumorous tissues, and its expression was inversely correlated with Ku80 upregulation. Downregulation of hsa-miR-623 was associated with poor clinical outcomes of lung adenocarcinoma patients. Hsa-miR-623 suppressed lung adenocarcinoma cell proliferation, clonogenicity, migration and invasion in vitro. Hsa-miR-623 inhibited xenografts growth and metastasis of lung adenocarcinoma in vivo. Ku80 knockdown in lung adenocarcinoma cells suppressed tumor properties in vitro and in vivo similar to hsa-miR-623 overexpression. Further, hsa-miR-623 overexpression decreased matrix metalloproteinase-2 (MMP-2) and MMP-9 expression levels, with decreased ERK/JNK phosphorylation. Inhibition of hsa-miR-623 or overexpression of Ku80 promoted lung adenocarcinoma cell invasion, activated ERK/JNK phosphorylation and increased MMP-2/9 expressions, which could be reversed by ERK kinase inhibitor or JNK kinase inhibitor. In summary, our results showed that hsa-miR-623 was downregulated in lung adenocarcinoma and suppressed the invasion and metastasis targeting Ku80 through ERK/JNK inactivation mediated downregulation of MMP-2/9. These findings reveal that hsa-miR-623 may serve as an important therapeutic target in lung cancer therapy.</AbstractText>
+            </Abstract>
+            <AuthorList CompleteYN="Y">
+                <Author ValidYN="Y">
+                    <LastName>Wei</LastName>
+                    <ForeName>Shuang</ForeName>
+                    <Initials>S</Initials>
+                    <AffiliationInfo>
+                        <Affiliation>Department of Respiratory and Critical Care Medicine, Key Laboratory of Pulmonary Diseases of Health Ministry, Key Cite of National Clinical Research Center for Respiratory Disease, Tongji Hospital, Tongji Medical College Huazhong University of Science and Technology, 1095 Jie Fang Avenue, Wuhan 430030, China.</Affiliation>
+                    </AffiliationInfo>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Zhang</LastName>
+                    <ForeName>Zun-Yi</ForeName>
+                    <Initials>ZY</Initials>
+                    <AffiliationInfo>
+                        <Affiliation>Department of Surgery, Tongji Hospital, Tongji Medical College Huazhong University of Science and Technology, 1095 Jie Fang Da Dao, Wuhan 430030, China.</Affiliation>
+                    </AffiliationInfo>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Fu</LastName>
+                    <ForeName>Sheng-Ling</ForeName>
+                    <Initials>SL</Initials>
+                    <AffiliationInfo>
+                        <Affiliation>Department of Surgery, Tongji Hospital, Tongji Medical College Huazhong University of Science and Technology, 1095 Jie Fang Da Dao, Wuhan 430030, China.</Affiliation>
+                    </AffiliationInfo>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Xie</LastName>
+                    <ForeName>Jun-Gang</ForeName>
+                    <Initials>JG</Initials>
+                    <AffiliationInfo>
+                        <Affiliation>Department of Respiratory and Critical Care Medicine, Key Laboratory of Pulmonary Diseases of Health Ministry, Key Cite of National Clinical Research Center for Respiratory Disease, Tongji Hospital, Tongji Medical College Huazhong University of Science and Technology, 1095 Jie Fang Avenue, Wuhan 430030, China.</Affiliation>
+                    </AffiliationInfo>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Liu</LastName>
+                    <ForeName>Xian-Sheng</ForeName>
+                    <Initials>XS</Initials>
+                    <AffiliationInfo>
+                        <Affiliation>Department of Respiratory and Critical Care Medicine, Key Laboratory of Pulmonary Diseases of Health Ministry, Key Cite of National Clinical Research Center for Respiratory Disease, Tongji Hospital, Tongji Medical College Huazhong University of Science and Technology, 1095 Jie Fang Avenue, Wuhan 430030, China.</Affiliation>
+                    </AffiliationInfo>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Xu</LastName>
+                    <ForeName>Yong-Jian</ForeName>
+                    <Initials>YJ</Initials>
+                    <AffiliationInfo>
+                        <Affiliation>Department of Respiratory and Critical Care Medicine, Key Laboratory of Pulmonary Diseases of Health Ministry, Key Cite of National Clinical Research Center for Respiratory Disease, Tongji Hospital, Tongji Medical College Huazhong University of Science and Technology, 1095 Jie Fang Avenue, Wuhan 430030, China.</Affiliation>
+                    </AffiliationInfo>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Zhao</LastName>
+                    <ForeName>Jian-Ping</ForeName>
+                    <Initials>JP</Initials>
+                    <AffiliationInfo>
+                        <Affiliation>Department of Respiratory and Critical Care Medicine, Key Laboratory of Pulmonary Diseases of Health Ministry, Key Cite of National Clinical Research Center for Respiratory Disease, Tongji Hospital, Tongji Medical College Huazhong University of Science and Technology, 1095 Jie Fang Avenue, Wuhan 430030, China.</Affiliation>
+                    </AffiliationInfo>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Xiong</LastName>
+                    <ForeName>Wei-Ning</ForeName>
+                    <Initials>WN</Initials>
+                    <AffiliationInfo>
+                        <Affiliation>Department of Respiratory and Critical Care Medicine, Key Laboratory of Pulmonary Diseases of Health Ministry, Key Cite of National Clinical Research Center for Respiratory Disease, Tongji Hospital, Tongji Medical College Huazhong University of Science and Technology, 1095 Jie Fang Avenue, Wuhan 430030, China.</Affiliation>
+                    </AffiliationInfo>
+                </Author>
+            </AuthorList>
+            <Language>eng</Language>
+            <PublicationTypeList>
+                <PublicationType UI="D016428">Journal Article</PublicationType>
+                <PublicationType UI="D016441">Retracted Publication</PublicationType>
+            </PublicationTypeList>
+            <ArticleDate DateType="Electronic">
+                <Year>2016</Year>
+                <Month>09</Month>
+                <Day>29</Day>
+            </ArticleDate>
+        </Article>
+        <MedlineJournalInfo>
+            <Country>England</Country>
+            <MedlineTA>Cell Death Dis</MedlineTA>
+            <NlmUniqueID>101524092</NlmUniqueID>
+        </MedlineJournalInfo>
+        <ChemicalList>
+            <Chemical>
+                <RegistryNumber>0</RegistryNumber>
+                <NameOfSubstance UI="C000623205">MIRN623 microRNA, human</NameOfSubstance>
+            </Chemical>
+            <Chemical>
+                <RegistryNumber>0</RegistryNumber>
+                <NameOfSubstance UI="D035683">MicroRNAs</NameOfSubstance>
+            </Chemical>
+            <Chemical>
+                <RegistryNumber>EC 3.4.24.24</RegistryNumber>
+                <NameOfSubstance UI="D020778">Matrix Metalloproteinase 2</NameOfSubstance>
+            </Chemical>
+            <Chemical>
+                <RegistryNumber>EC 3.4.24.35</RegistryNumber>
+                <NameOfSubstance UI="D020780">Matrix Metalloproteinase 9</NameOfSubstance>
+            </Chemical>
+            <Chemical>
+                <RegistryNumber>EC 4.2.99.-</RegistryNumber>
+                <NameOfSubstance UI="D000072200">Ku Autoantigen</NameOfSubstance>
+            </Chemical>
+        </ChemicalList>
+        <SupplMeshList>
+            <SupplMeshName Type="Disease" UI="C538231">Adenocarcinoma of lung</SupplMeshName>
+        </SupplMeshList>
+        <CitationSubset>IM</CitationSubset>
+        <CommentsCorrectionsList>
+            <CommentsCorrections RefType="ErratumIn">
+                <RefSource>Cell Death Dis. 2018 Aug 6;9(8):829</RefSource>
+                <PMID Version="1">30082717</PMID>
+            </CommentsCorrections>
+            <CommentsCorrections RefType="RetractionIn">
+                <RefSource>Cell Death Dis. 2019 Jan 25;10(2):60</RefSource>
+                <PMID Version="1">30683838</PMID>
+            </CommentsCorrections>
+        </CommentsCorrectionsList>
+        <MeshHeadingList>
+            <MeshHeading>
+                <DescriptorName UI="D000230" MajorTopicYN="N">Adenocarcinoma</DescriptorName>
+                <QualifierName UI="Q000235" MajorTopicYN="Y">genetics</QualifierName>
+                <QualifierName UI="Q000473" MajorTopicYN="Y">pathology</QualifierName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName UI="D000077192" MajorTopicYN="N">Adenocarcinoma of Lung</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName UI="D000818" MajorTopicYN="N">Animals</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName UI="D001483" MajorTopicYN="N">Base Sequence</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName UI="D045744" MajorTopicYN="N">Cell Line, Tumor</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName UI="D002465" MajorTopicYN="N">Cell Movement</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName UI="D049109" MajorTopicYN="N">Cell Proliferation</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName UI="D018450" MajorTopicYN="Y">Disease Progression</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName UI="D015536" MajorTopicYN="N">Down-Regulation</DescriptorName>
+                <QualifierName UI="Q000235" MajorTopicYN="N">genetics</QualifierName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName UI="D005260" MajorTopicYN="N">Female</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName UI="D015972" MajorTopicYN="N">Gene Expression Regulation, Neoplastic</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName UI="D006801" MajorTopicYN="N">Humans</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName UI="D000072200" MajorTopicYN="N">Ku Autoantigen</DescriptorName>
+                <QualifierName UI="Q000378" MajorTopicYN="N">metabolism</QualifierName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName UI="D008175" MajorTopicYN="N">Lung Neoplasms</DescriptorName>
+                <QualifierName UI="Q000235" MajorTopicYN="Y">genetics</QualifierName>
+                <QualifierName UI="Q000473" MajorTopicYN="Y">pathology</QualifierName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName UI="D020935" MajorTopicYN="N">MAP Kinase Signaling System</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName UI="D008297" MajorTopicYN="N">Male</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName UI="D020778" MajorTopicYN="N">Matrix Metalloproteinase 2</DescriptorName>
+                <QualifierName UI="Q000378" MajorTopicYN="N">metabolism</QualifierName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName UI="D020780" MajorTopicYN="N">Matrix Metalloproteinase 9</DescriptorName>
+                <QualifierName UI="Q000378" MajorTopicYN="N">metabolism</QualifierName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName UI="D008807" MajorTopicYN="N">Mice, Inbred BALB C</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName UI="D008819" MajorTopicYN="N">Mice, Nude</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName UI="D035683" MajorTopicYN="N">MicroRNAs</DescriptorName>
+                <QualifierName UI="Q000235" MajorTopicYN="N">genetics</QualifierName>
+                <QualifierName UI="Q000378" MajorTopicYN="Y">metabolism</QualifierName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName UI="D008875" MajorTopicYN="N">Middle Aged</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName UI="D009361" MajorTopicYN="N">Neoplasm Invasiveness</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName UI="D009362" MajorTopicYN="N">Neoplasm Metastasis</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName UI="D016896" MajorTopicYN="N">Treatment Outcome</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName UI="D023041" MajorTopicYN="N">Xenograft Model Antitumor Assays</DescriptorName>
+            </MeshHeading>
+        </MeshHeadingList>
+    </MedlineCitation>
+    <PubmedData>
+        <History>
+            <PubMedPubDate PubStatus="received">
+                <Year>2016</Year>
+                <Month>03</Month>
+                <Day>17</Day>
+            </PubMedPubDate>
+            <PubMedPubDate PubStatus="revised">
+                <Year>2016</Year>
+                <Month>07</Month>
+                <Day>21</Day>
+            </PubMedPubDate>
+            <PubMedPubDate PubStatus="accepted">
+                <Year>2016</Year>
+                <Month>07</Month>
+                <Day>26</Day>
+            </PubMedPubDate>
+            <PubMedPubDate PubStatus="pubmed">
+                <Year>2016</Year>
+                <Month>9</Month>
+                <Day>30</Day>
+                <Hour>6</Hour>
+                <Minute>0</Minute>
+            </PubMedPubDate>
+            <PubMedPubDate PubStatus="medline">
+                <Year>2017</Year>
+                <Month>10</Month>
+                <Day>11</Day>
+                <Hour>6</Hour>
+                <Minute>0</Minute>
+            </PubMedPubDate>
+            <PubMedPubDate PubStatus="entrez">
+                <Year>2016</Year>
+                <Month>9</Month>
+                <Day>30</Day>
+                <Hour>6</Hour>
+                <Minute>0</Minute>
+            </PubMedPubDate>
+        </History>
+        <PublicationStatus>epublish</PublicationStatus>
+        <ArticleIdList>
+            <ArticleId IdType="pubmed">27685632</ArticleId>
+            <ArticleId IdType="pii">cddis2016260</ArticleId>
+            <ArticleId IdType="doi">10.1038/cddis.2016.260</ArticleId>
+            <ArticleId IdType="pmc">PMC5059863</ArticleId>
+        </ArticleIdList>
+        <ReferenceList>
+            <Reference>
+                <Citation>Cancer Res. 2006 Nov 15;66(22):10902-10</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">17108127</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Amino Acids. 2008 Feb;34(2):195-202</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">17031478</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Cancer Metastasis Rev. 2006 Mar;25(1):9-34</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">16680569</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Respir Med. 2010 Dec;104(12):1767-74</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">20833010</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Cell. 2011 Oct 14;147(2):275-92</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">22000009</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Oncotarget. 2015 Jan 30;6(3):1462-77</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">25596743</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Nature. 2007 Oct 11;449(7163):682-8</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">17898713</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Mol Med Rep. 2015 Apr;11(4):3108-14</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">25483817</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Cell Death Differ. 2014 Jul;21(7):1150-9</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">24658401</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Nature. 2004 Sep 16;431(7006):350-5</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">15372042</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Oncogene. 2001 Feb 8;20(6):739-47</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">11314007</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Mol Med Rep. 2015 May;11(5):3647-51</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">25544258</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Adv Med Sci. 2013;58(1):73-82</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">23640949</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>J Exp Clin Cancer Res. 2012 Nov 27;31:99</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">23181744</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Nature. 2008 Sep 4;455(7209):58-63</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">18668040</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Cell. 2006 Nov 17;127(4):679-95</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">17110329</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>BMC Complement Altern Med. 2013 Oct 20;13:271</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">24138815</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Nat Cell Biol. 2010 Mar;12 (3):247-56</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">20173740</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Histol Histopathol. 2008 Jun;23(6):693-700</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">18366007</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Cell. 2004 Jan 23;116(2):281-97</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">14744438</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>CA Cancer J Clin. 2012 Jan-Feb;62(1):10-29</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">22237781</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Oncotarget. 2015 Apr 10;6(10 ):8046-61</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">25797267</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Cell. 2009 Jun 12;137(6):1032-46</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">19524507</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Cancer Lett. 2009 Jul 8;279(2):155-62</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">19251361</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>DNA Cell Biol. 2007 May;26(5):311-20</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">17504027</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Cell Biol Int. 2001;25(5):411-20</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">11401328</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Nat Commun. 2013;4:1877</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">23695671</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>J Biol Chem. 2006 Nov 17;281(46):34833-47</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">16984917</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Mol Nutr Food Res. 2009 Mar;53(3):407-16</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">19072741</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Ann N Y Acad Sci. 2010 Apr;1194:60-71</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">20536451</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Int J Cancer. 2010 Dec 15;127(12):2893-917</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">21351269</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Carcinogenesis. 2012 Mar;33(3):538-47</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">22226916</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>J Agric Food Chem. 2011 Aug 24;59(16):9032-8</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">21770460</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Nat Rev Cancer. 2006 Jun;6(6):449-58</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">16723991</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Am J Clin Oncol. 2003 Aug;26(4):e80-5</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">12902903</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Am J Pathol. 2013 Mar;182(3):954-64</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">23306155</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Cancer Res. 1995 Mar 15;55(6):1235-8</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">7882315</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Food Chem Toxicol. 2009 Aug;47(8):1985-95</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">19457446</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Biochim Biophys Acta. 2006 Apr;1765(2):223-34</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">16480833</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Nutr Cancer. 2012;64(2):255-66</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">22211962</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Cancer Genet. 2015 Mar;208(3):76-84</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">25772251</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Tumour Biol. 2014 Jul;35(7):6983-97</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">24744142</ArticleId>
+                </ArticleIdList>
+            </Reference>
+        </ReferenceList>
+    </PubmedData>
+</PubmedArticle>
+
+</PubmedArticleSet>

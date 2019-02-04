@@ -1,0 +1,449 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PubmedArticleSet PUBLIC "-//NLM//DTD PubMedArticle, 1st January 2019//EN" "https://dtd.nlm.nih.gov/ncbi/pubmed/out/pubmed_190101.dtd">
+<PubmedArticleSet>
+<PubmedArticle>
+    <MedlineCitation Status="MEDLINE" Owner="NLM">
+        <PMID Version="1">29846473</PMID>
+        <DateCompleted>
+            <Year>2018</Year>
+            <Month>06</Month>
+            <Day>05</Day>
+        </DateCompleted>
+        <DateRevised>
+            <Year>2018</Year>
+            <Month>11</Month>
+            <Day>14</Day>
+        </DateRevised>
+        <Article PubModel="Print-Electronic">
+            <Journal>
+                <ISSN IssnType="Electronic">1678-9946</ISSN>
+                <JournalIssue CitedMedium="Internet">
+                    <Volume>60</Volume>
+                    <PubDate>
+                        <Year>2018</Year>
+                    </PubDate>
+                </JournalIssue>
+                <Title>Revista do Instituto de Medicina Tropical de Sao Paulo</Title>
+                <ISOAbbreviation>Rev. Inst. Med. Trop. Sao Paulo</ISOAbbreviation>
+            </Journal>
+            <ArticleTitle>Pathology and pathogenesis of human leptospirosis: a commented review.</ArticleTitle>
+            <Pagination>
+                <MedlinePgn>e23</MedlinePgn>
+            </Pagination>
+            <ELocationID EIdType="pii" ValidYN="Y">S0036-46652018005000400</ELocationID>
+            <ELocationID EIdType="doi" ValidYN="Y">10.1590/s1678-9946201860023</ELocationID>
+            <Abstract>
+                <AbstractText>Leptospirosis is an acute bacterial septicemic febrile disease caused by pathogenic leptospires, which affect humans and animals in all parts of the world. Transmission can occur by direct contact with infected animals or, more commonly, through indirect contact with water or soil contaminated with urine from infected animals. Leptospires enter the body by penetrating mucous membranes or skin abrasions and disseminate through the hematogenic route. In humans, leptospirosis may cause a wide spectrum of symptoms. Most cases have a biphasic clinical presentation, which begins with the septicemic phase followed by immune manifestations. The severe forms of the disease may be life threatening with multisystem damage including renal failure, hepatic dysfunction, vascular damage, pulmonary hemorrhage and muscle lesions. In this review, we present and discuss the pathogenesis of the human disease and the mechanisms of cell membrane injuries, which occur mainly due to the presence of leptospires and/or their antigen/s in the host tissues.</AbstractText>
+            </Abstract>
+            <AuthorList CompleteYN="Y">
+                <Author ValidYN="Y">
+                    <LastName>De Brito</LastName>
+                    <ForeName>Thales</ForeName>
+                    <Initials>T</Initials>
+                    <AffiliationInfo>
+                        <Affiliation>Instituto de Medicina Tropical de São Paulo, Universidade de São Paulo, São Paulo, Brazil.</Affiliation>
+                    </AffiliationInfo>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Silva</LastName>
+                    <ForeName>Ana Maria Gonçalves da</ForeName>
+                    <Initials>AMGD</Initials>
+                    <AffiliationInfo>
+                        <Affiliation>Instituto de Medicina Tropical de São Paulo, Universidade de São Paulo, São Paulo, Brazil.</Affiliation>
+                    </AffiliationInfo>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Abreu</LastName>
+                    <ForeName>Patrícia Antonia Estima</ForeName>
+                    <Initials>PAE</Initials>
+                    <AffiliationInfo>
+                        <Affiliation>Laboratório de Bacteriologia, Instituto Butantan, São Paulo, São Paulo, Brazil.</Affiliation>
+                    </AffiliationInfo>
+                </Author>
+            </AuthorList>
+            <Language>eng</Language>
+            <PublicationTypeList>
+                <PublicationType UI="D016428">Journal Article</PublicationType>
+                <PublicationType UI="D016454">Review</PublicationType>
+            </PublicationTypeList>
+            <ArticleDate DateType="Electronic">
+                <Year>2018</Year>
+                <Month>05</Month>
+                <Day>28</Day>
+            </ArticleDate>
+        </Article>
+        <MedlineJournalInfo>
+            <Country>Brazil</Country>
+            <MedlineTA>Rev Inst Med Trop Sao Paulo</MedlineTA>
+            <NlmUniqueID>7507484</NlmUniqueID>
+            <ISSNLinking>0036-4665</ISSNLinking>
+        </MedlineJournalInfo>
+        <ChemicalList>
+            <Chemical>
+                <RegistryNumber>0</RegistryNumber>
+                <NameOfSubstance UI="D015820">Cadherins</NameOfSubstance>
+            </Chemical>
+        </ChemicalList>
+        <CitationSubset>IM</CitationSubset>
+        <CommentsCorrectionsList>
+            <CommentsCorrections RefType="ErratumIn">
+                <RefSource>Rev Inst Med Trop Sao Paulo. 2018;60:e23err</RefSource>
+                <PMID Version="1">29972465</PMID>
+            </CommentsCorrections>
+        </CommentsCorrectionsList>
+        <MeshHeadingList>
+            <MeshHeading>
+                <DescriptorName UI="D000818" MajorTopicYN="N">Animals</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName UI="D015820" MajorTopicYN="N">Cadherins</DescriptorName>
+                <QualifierName UI="Q000378" MajorTopicYN="Y">metabolism</QualifierName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName UI="D002462" MajorTopicYN="N">Cell Membrane</DescriptorName>
+                <QualifierName UI="Q000469" MajorTopicYN="Y">parasitology</QualifierName>
+                <QualifierName UI="Q000473" MajorTopicYN="N">pathology</QualifierName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName UI="D006801" MajorTopicYN="N">Humans</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName UI="D007668" MajorTopicYN="N">Kidney</DescriptorName>
+                <QualifierName UI="Q000469" MajorTopicYN="Y">parasitology</QualifierName>
+                <QualifierName UI="Q000473" MajorTopicYN="N">pathology</QualifierName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName UI="D007922" MajorTopicYN="N">Leptospirosis</DescriptorName>
+                <QualifierName UI="Q000209" MajorTopicYN="Y">etiology</QualifierName>
+                <QualifierName UI="Q000378" MajorTopicYN="N">metabolism</QualifierName>
+                <QualifierName UI="Q000473" MajorTopicYN="Y">pathology</QualifierName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName UI="D008099" MajorTopicYN="N">Liver</DescriptorName>
+                <QualifierName UI="Q000469" MajorTopicYN="Y">parasitology</QualifierName>
+                <QualifierName UI="Q000473" MajorTopicYN="N">pathology</QualifierName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName UI="D009135" MajorTopicYN="N">Muscular Diseases</DescriptorName>
+                <QualifierName UI="Q000469" MajorTopicYN="Y">parasitology</QualifierName>
+                <QualifierName UI="Q000473" MajorTopicYN="N">pathology</QualifierName>
+            </MeshHeading>
+        </MeshHeadingList>
+    </MedlineCitation>
+    <PubmedData>
+        <History>
+            <PubMedPubDate PubStatus="received">
+                <Year>2018</Year>
+                <Month>01</Month>
+                <Day>04</Day>
+            </PubMedPubDate>
+            <PubMedPubDate PubStatus="accepted">
+                <Year>2018</Year>
+                <Month>04</Month>
+                <Day>23</Day>
+            </PubMedPubDate>
+            <PubMedPubDate PubStatus="entrez">
+                <Year>2018</Year>
+                <Month>5</Month>
+                <Day>31</Day>
+                <Hour>6</Hour>
+                <Minute>0</Minute>
+            </PubMedPubDate>
+            <PubMedPubDate PubStatus="pubmed">
+                <Year>2018</Year>
+                <Month>5</Month>
+                <Day>31</Day>
+                <Hour>6</Hour>
+                <Minute>0</Minute>
+            </PubMedPubDate>
+            <PubMedPubDate PubStatus="medline">
+                <Year>2018</Year>
+                <Month>6</Month>
+                <Day>6</Day>
+                <Hour>6</Hour>
+                <Minute>0</Minute>
+            </PubMedPubDate>
+        </History>
+        <PublicationStatus>ppublish</PublicationStatus>
+        <ArticleIdList>
+            <ArticleId IdType="pubmed">29846473</ArticleId>
+            <ArticleId IdType="pii">S0036-46652018005000400</ArticleId>
+            <ArticleId IdType="doi">10.1590/s1678-9946201860023</ArticleId>
+            <ArticleId IdType="pmc">PMC5975557</ArticleId>
+        </ArticleIdList>
+        <ReferenceList>
+            <Reference>
+                <Citation>PLoS Negl Trop Dis. 2010 Feb 23;4(2):e612</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">20186328</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>BMC Biol. 2016 Jun 13;14 :46</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">27296830</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Epidemiol Infect. 2015 Jun;143(8):1761-6</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">25311398</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>PLoS Negl Trop Dis. 2015 Mar 20;9(3):e0003640</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">25793258</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Lancet Infect Dis. 2003 Dec;3(12):757-71</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">14652202</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Vet Microbiol. 2010 Jan 27;140(3-4):287-96</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">19345023</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Trop Med Int Health. 2010 Feb;15(2):152-9</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">20002620</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Hum Pathol. 2012 Oct;43(10):1601-10</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">22436623</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>J Pathol. 1979 Aug;128(4):177-82</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">521862</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>J Gen Microbiol. 1986 Jan;132(1):111-23</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">3711858</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Curr Top Microbiol Immunol. 2015;387:65-97</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">25388133</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Int J Exp Pathol. 2014 Aug;95(4):271-81</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">24945433</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>PLoS Negl Trop Dis. 2017 May 15;11(5):e0005615</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">28505191</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Virchows Arch Pathol Anat Physiol Klin Med. 1966 Apr 13;341(1):64-78</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">4294883</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Adv Anat Pathol. 2012 Sep;19(5):281-95</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">22885378</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>PLoS One. 2013 Aug 12;8(8):e71743</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">23951234</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>J Infect Dis. 2014 Apr 1;209(7):1105-15</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">24277745</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>PLoS Negl Trop Dis. 2014 Oct 02;8(10):e3215</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">25275630</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Microbes Infect. 2000 Aug;2(10):1265-76</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">11008116</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>PLoS Negl Trop Dis. 2014 Jan 30;8(1):e2672</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">24498454</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Am J Pathol. 1962 Apr;40:393-423</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">13862141</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>J Cell Sci. 2008 Jul 1;121(Pt 13):2115-22</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">18565824</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Beitr Pathol Anat. 1970;140(3):345-61</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">5432310</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Front Microbiol. 2017 May 30;8:958</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">28611756</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>J Pathol. 1987 Feb;151(2):125-31</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">3553506</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Exp Toxicol Pathol. 1992 Dec;44(7):425-34</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">1282401</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Rev Inst Med Trop Sao Paulo. 1992 Sep-Oct;34(5):375-81</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">1342098</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Am J Vet Res. 1966 Jul;27(119):1071-81</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">5967328</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Ann Trop Med Parasitol. 1987 Jun;81(3):207-14</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">3310933</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Am J Trop Med Hyg. 2015 Mar;92(3):611-6</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">25624405</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Virchows Arch. 2010 Apr;456(4):367-75</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">20217429</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>PLoS Negl Trop Dis. 2017 Jul 27;11(7):e0005830</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">28750011</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Virchows Arch Pathol Anat Physiol Klin Med. 1967 Jan 11;342(1):61-9</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">4298629</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Clin Infect Dis. 2012 May;54(9):1249-55</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">22354922</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Am J Physiol Regul Integr Comp Physiol. 2005 Feb;288(2):R345-53</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">15637171</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Biochem Biophys Res Commun. 2010 May 21;396(1):164-9</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">20494132</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>PLoS One. 2013 Oct 03;8(10):e76549</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">24098528</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Pathol Res Pract. 2008;204(10):725-30</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">18639387</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Clin Microbiol Rev. 2001 Apr;14(2):296-326</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">11292640</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Virchows Arch. 2006 May;448(5):576-83</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">16541282</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>PLoS Negl Trop Dis. 2010 Dec 14;4(12):e918</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">21179504</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Lab Invest. 1957 Sep-Oct;6(5):462-71</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">13464040</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Virchows Arch Pathol Anat Physiol Klin Med. 1967;343(2):124-35</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">5302171</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>Int J Exp Pathol. 1992 Oct;73(5):633-42</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">1419779</ArticleId>
+                </ArticleIdList>
+            </Reference>
+            <Reference>
+                <Citation>PLoS Negl Trop Dis. 2015 Sep 17;9(9):e0003898</Citation>
+                <ArticleIdList>
+                    <ArticleId IdType="pubmed">26379143</ArticleId>
+                </ArticleIdList>
+            </Reference>
+        </ReferenceList>
+    </PubmedData>
+</PubmedArticle>
+
+</PubmedArticleSet>

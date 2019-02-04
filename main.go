@@ -236,19 +236,13 @@ func batch(term string, ncbi_api_key string, license_lookup map[string]string, c
 		for _, article := range fetch_resp.Articles {
 
 			// Is there a PMCID for this paper
-			var pmcid string
-			for _, articleID := range article.PubMedData.ArticleIDList.ArticleIDs {
-				if articleID.IDType == "pmc" {
-					pmcid = strings.TrimPrefix(articleID.ID, "PMC")
-					break
-				}
-			}
+			pmcid := article.GetPMCID()
 			if pmcid != "" {
 				pmcid_list = append(pmcid_list, pmcid)
 			}
 
 			var license string
-			if l, ok := license_lookup[article.MedlineCitation.PMID]; ok {
+			if l, ok := license_lookup[article.GetPMID()]; ok {
 				license = l
 			}
 			if license == "" {
@@ -287,45 +281,9 @@ func batch(term string, ncbi_api_key string, license_lookup map[string]string, c
 				}
 			}
 
-			subjects := make([]MeshDescriptorName, 0)
-			for _, mesh := range article.MedlineCitation.MeshHeadingList.MeshHeadings {
-				major := mesh.DescriptorName.MajorTopicYN == "Y"
-				for _, qual := range mesh.QualifierNames {
-					major = major || qual.MajorTopicYN == "Y"
-				}
-				if major {
-					main_subject_list = append(main_subject_list, mesh.DescriptorName.MeshID)
-					subjects = append(subjects, mesh.DescriptorName)
-				}
-			}
-
-			pubdate := ""
-			p := article.MedlineCitation.Article[0].Journal.JournalIssue.PubDate
-			if p.Month != "" && p.Year != 0 {
-				pmonth, err := monthStringToInt(p.Month)
-				if err == nil && p.Year != 0 {
-					if p.Day == 0 {
-						p.Day = 1
-					}
-					pubdate = fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/9", p.Year, pmonth, p.Day)
-				}
-			}
-			if pubdate == "" {
-				p := article.MedlineCitation.Article[0].ArticleDate
-				if p.Month != 0 && p.Year != 0 {
-					if p.Day == 0 {
-						p.Day = 1
-					}
-					pubdate = fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/9", p.Year, p.Month, p.Day)
-				}
-			}
-
-			is_review := false
-			for _, pubtype := range article.MedlineCitation.Article[0].PublicationTypeList.PublicationTypes {
-				if pubtype.Type == "Review" || pubtype.Type == "Systematic Review" {
-					is_review = true
-					break
-				}
+			subjects := article.GetMajorTopics()
+			for _, subject := range subjects {
+				main_subject_list = append(main_subject_list, subject.MeshID)
 			}
 
 			issn := article.MedlineCitation.Article[0].Journal.ISSN
@@ -341,10 +299,10 @@ func batch(term string, ncbi_api_key string, license_lookup map[string]string, c
 				EPMCLicenseLink:  license_info.Link,
 				EPMCLicenseProse: license_info.Text,
 				MainSubjects:     subjects,
-				PublicationDate:  pubdate,
+				PublicationDate:  article.GetPublicationDateString(),
 				Publication:      article.MedlineCitation.Article[0].Journal.Title,
 				ISSN:             issn,
-				IsReview:         is_review,
+				IsReview:         article.IsReview(),
 			}
 
 			records = append(records, r)
