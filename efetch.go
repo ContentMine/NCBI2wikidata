@@ -297,10 +297,10 @@ func (article PubmedArticle) IsRetraction() bool {
 
 func (article PubmedArticle) GetRetractedInPMID() string {
 
-    for _, comment := range article.MedlineCitation.CommentsCorrectionsList.CommentsCorrections {
-        if comment.RefType == "RetractionIn" {
-            return comment.PMID
-        }
-    }
-    return ""
+	for _, comment := range article.MedlineCitation.CommentsCorrectionsList.CommentsCorrections {
+		if comment.RefType == "RetractionIn" {
+			return comment.PMID
+		}
+	}
+	return ""
 }

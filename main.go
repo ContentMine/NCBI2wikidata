@@ -169,20 +169,84 @@ func LoadLicenses(filename string) (map[string]string, error) {
 }
 
 type Record struct {
-	Title            string
-	MainSubjects     []MeshDescriptorName
-	IsReview         bool
-	PublicationDate  string
-	Publication      string
-	ISSN             string
-	PMCLicense       string
-	EPMCLicenseLink  string
-	EPMCLicenseProse string
-	PMID             string
-	PMCID            string
-	IsRetracted      bool
-	IsRetraction     bool
-	RetractedByPMID  string
+	Title           string
+	MainSubjects    []MeshDescriptorName
+	IsReview        bool
+	PublicationDate string
+	Publication     string
+	ISSN            string
+	PMCLicense      string
+	EPMCLicenseLink string
+	PMID            string
+	PMCID           string
+	IsRetracted     bool
+	IsRetraction    bool
+	RetractedByPMID string
+}
+
+func GetEuroPMCLicenseLinkForPMCID(pmcid string) (string, error) {
+
+	// Go ask EPMC about the license to get more details
+	paper, err := europmc.FetchFullText(pmcid)
+	if err != nil {
+		return "", err
+	}
+	license_info := paper.Front.ArticleMeta.Permissions.License
+	if license_info.Link == "" {
+		if strings.Contains(license_info.Text, "This article is distributed under the terms of the Creative Commons Attribution 4.0 International License") {
+			license_info.Link = "https://creativecommons.org/licenses/by/4.0/"
+		}
+	} else {
+		// The URLs between wikidata and EPMC aren't very consistent: some are HTTP, some HTTPS, some
+		// have a training / some do not, etc. So we try to move to a canonical form here
+		u, err := url.Parse(license_info.Link)
+		if err != nil {
+			log.Printf("Failed to parse license link %s: %s", license_info.Link, err)
+		} else {
+			u.Scheme = "https"
+			if !strings.HasSuffix(u.Path, "/") {
+				u.Path += "/"
+			}
+			license_info.Link = u.String()
+		}
+	}
+
+	return license_info.Link, nil
+}
+
+func ArticleToRecord(article PubmedArticle, license_lookup map[string]string) (Record, error) {
+
+	pmcid := article.GetPMCID()
+
+	var license string
+	if l, ok := license_lookup[article.GetPMID()]; ok {
+		license = l
+	}
+	if license == "" {
+		// didn't find one with PMID, try PMCID
+		if l, ok := license_lookup[pmcid]; ok {
+			license = l
+		}
+	}
+
+	if license == "" {
+		return Record{}, fmt.Errorf("No open access license information for paper %s", article.GetPMID())
+	}
+
+	return Record{
+		Title:           article.MedlineCitation.Article[0].ArticleTitle,
+		PMID:            article.MedlineCitation.PMID,
+		PMCID:           pmcid,
+		PMCLicense:      license,
+		MainSubjects:    article.GetMajorTopics(),
+		PublicationDate: article.GetPublicationDateString(),
+		Publication:     article.MedlineCitation.Article[0].Journal.Title,
+		ISSN:            article.MedlineCitation.Article[0].Journal.ISSN,
+		IsReview:        article.IsReview(),
+		IsRetracted:     article.IsRetracted(),
+		IsRetraction:    article.IsRetraction(),
+		RetractedByPMID: article.GetRetractedInPMID(),
+	}, nil
 }
 
 func batch(term string, ncbi_api_key string, license_lookup map[string]string, csv_file *os.File, qs_file *os.File) error {
@@ -239,85 +303,36 @@ func batch(term string, ncbi_api_key string, license_lookup map[string]string, c
 
 		for _, article := range fetch_resp.Articles {
 
-			// Is there a PMCID for this paper
-			pmcid := article.GetPMCID()
-			if pmcid != "" {
-				pmcid_list = append(pmcid_list, pmcid)
-			}
-
-			var license string
-			if l, ok := license_lookup[article.GetPMID()]; ok {
-				license = l
-			}
-			if license == "" {
-				// didn't find one with PMID, try PMCID
-				if l, ok := license_lookup[pmcid]; ok {
-					license = l
-				}
-			}
-
-			if license == "" {
+			// Distill out what we want from the article
+			record, err := ArticleToRecord(article, license_lookup)
+			if err != nil {
+				log.Printf("Failed to process article: %v", err)
 				continue
 			}
 
-			// Go ask EPMC about the license to get more details
-			paper, err := europmc.FetchFullText(pmcid)
-			if err != nil {
-				log.Printf("Failed to get EPMC data for %s: %v", pmcid, err)
-			}
-			license_info := paper.Front.ArticleMeta.Permissions.License
-			if license_info.Link == "" {
-				if strings.Contains(license_info.Text, "This article is distributed under the terms of the Creative Commons Attribution 4.0 International License") {
-					license_info.Link = "https://creativecommons.org/licenses/by/4.0/"
-				}
-			} else {
-				// The URLs between wikidata and EPMC aren't very consistent: some are HTTP, some HTTPS, some
-				// have a training / some do not, etc. So we try to move to a canonical form here
-				u, err := url.Parse(license_info.Link)
+			// see of we can get better license detail from EuroPMC
+			if record.PMCID != "" {
+				record.EPMCLicenseLink, err = GetEuroPMCLicenseLinkForPMCID(record.PMCID)
 				if err != nil {
-					log.Printf("Failed to parse license link %s: %s", license_info.Link, err)
-				} else {
-					u.Scheme = "https"
-					if !strings.HasSuffix(u.Path, "/") {
-						u.Path += "/"
-					}
-					license_info.Link = u.String()
+					log.Printf("Failed to get EPMC data for %s: %v", record.PMCID, err)
 				}
 			}
 
-			subjects := article.GetMajorTopics()
-			for _, subject := range subjects {
+			// make a note of the things we need to look up on wikidata
+			if record.RetractedByPMID != "" {
+				pmid_list = append(pmid_list, record.RetractedByPMID)
+			}
+			for _, subject := range record.MainSubjects {
 				main_subject_list = append(main_subject_list, subject.MeshID)
 			}
-
-			issn := article.MedlineCitation.Article[0].Journal.ISSN
-			if issn != "" {
-				issn_list = append(issn_list, issn)
+			if record.ISSN != "" {
+				issn_list = append(issn_list, record.ISSN)
+			}
+			if record.PMCID != "" {
+				pmcid_list = append(pmcid_list, record.PMCID)
 			}
 
-			retraction_pmid := article.GetRetractedInPMID()
-			if retraction_pmid != "" {
-			    pmid_list = append(pmid_list, retraction_pmid)
-			}
-
-			r := Record{
-				Title:            article.MedlineCitation.Article[0].ArticleTitle,
-				PMID:             article.MedlineCitation.PMID,
-				PMCID:            pmcid,
-				PMCLicense:       license,
-				EPMCLicenseLink:  license_info.Link,
-				EPMCLicenseProse: license_info.Text,
-				MainSubjects:     subjects,
-				PublicationDate:  article.GetPublicationDateString(),
-				Publication:      article.MedlineCitation.Article[0].Journal.Title,
-				ISSN:             issn,
-				IsReview:         article.IsReview(),
-				IsRetracted:      article.IsRetracted(),
-				IsRetraction:     article.IsRetraction(),
-				RetractedByPMID:  retraction_pmid,
-			}
-
-			records = append(records, r)
+			records = append(records, record)
 		}
 	}
 
@@ -409,26 +424,26 @@ func batch(term string, ncbi_api_key string, license_lookup map[string]string, c
 				}
 			}
 
-            if record.IsRetracted {
+			if record.IsRetracted {
 				statement := AddItemPropertyToItem(item, INSTANCE_OF_PROPERTY, RETRACTED_PAPER_TYPE)
 				statement.AddSource(STATED_IN_SOURCE, PMC_ITEM)
 				statement.AddSource(RETRIEVED_AT_DATE_SOURCE, fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/11", now.Year(), now.Month(), now.Day()))
 				qs_file.WriteString(fmt.Sprintf("%v", statement))
 
 				if retracted_by_item != "" {
-                    statement := AddItemPropertyToItem(item, RETRACTED_BY_PROPERTY, retracted_by_item)
-                    statement.AddSource(STATED_IN_SOURCE, PMC_ITEM)
-                    statement.AddSource(RETRIEVED_AT_DATE_SOURCE, fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/11", now.Year(), now.Month(), now.Day()))
-                    qs_file.WriteString(fmt.Sprintf("%v", statement))
+					statement := AddItemPropertyToItem(item, RETRACTED_BY_PROPERTY, retracted_by_item)
+					statement.AddSource(STATED_IN_SOURCE, PMC_ITEM)
+					statement.AddSource(RETRIEVED_AT_DATE_SOURCE, fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/11", now.Year(), now.Month(), now.Day()))
+					qs_file.WriteString(fmt.Sprintf("%v", statement))
 				}
-            }
+			}
 
-            if record.IsRetraction {
+			if record.IsRetraction {
 				statement := AddItemPropertyToItem(item, INSTANCE_OF_PROPERTY, RETRACTION_NOTICE_TYPE)
 				statement.AddSource(STATED_IN_SOURCE, PMC_ITEM)
 				statement.AddSource(RETRIEVED_AT_DATE_SOURCE, fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/11", now.Year(), now.Month(), now.Day()))
 				qs_file.WriteString(fmt.Sprintf("%v", statement))
-            }
+			}
 
 			qs_file.WriteString("\n")
 		}
@@ -458,12 +473,12 @@ func batch(term string, ncbi_api_key string, license_lookup map[string]string, c
 
 		retracted_str := "false"
 		if record.IsRetracted {
-		    retracted_str = "true"
+			retracted_str = "true"
 		}
 
 		retraction_str := "false"
 		if record.IsRetracted {
-		    retraction_str = "true"
+			retraction_str = "true"
 		}
 
 		csv_file.WriteString(fmt.Sprintf("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
