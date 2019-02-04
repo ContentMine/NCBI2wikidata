@@ -128,6 +128,7 @@ type CommentsCorrectionsList struct {
 
 type CommentsCorrections struct {
 	XMLName   xml.Name `xml:"CommentsCorrections"`
+	RefType   string   `xml:"RefType,attr"`
 	RefSource string   `xml:"RefSource"`
 	PMID      string   `xml:"PMID"`
 }
@@ -292,4 +293,14 @@ func (article PubmedArticle) IsRetraction() bool {
 		}
 	}
 	return false
+}
+
+func (article PubmedArticle) GetRetractedInPMID() string {
+
+    for _, comment := range article.MedlineCitation.CommentsCorrectionsList.CommentsCorrections {
+        if comment.RefType == "RetractionIn" {
+            return comment.PMID
+        }
+    }
+    return ""
 }

@@ -70,6 +70,11 @@ func TestGenericExample(t *testing.T) {
 	if article.IsRetraction() {
 		t.Errorf("Expected article to not be a retraction")
 	}
+
+	retracted_in := article.GetRetractedInPMID()
+	if retracted_in != "" {
+	    t.Errorf("Got unexpected retraction PMID: %s", retracted_in)
+	}
 }
 
 func TestDescriptionOnlyMajorTopics(t *testing.T) {
@@ -110,6 +115,11 @@ func TestRetractedArticle(t *testing.T) {
 	if article.IsRetraction() {
 		t.Errorf("Expected article to not be a retraction")
 	}
+
+	retracted_in := article.GetRetractedInPMID()
+	if retracted_in != "30683838" {
+	    t.Errorf("Got unexpected retraction PMID: %s", retracted_in)
+	}
 }
 
 func TestRetraction(t *testing.T) {
@@ -130,5 +140,10 @@ func TestRetraction(t *testing.T) {
 
 	if !article.IsRetraction() {
 		t.Errorf("Expected article to not be a retraction")
+	}
+
+	retracted_in := article.GetRetractedInPMID()
+	if retracted_in != "" {
+	    t.Errorf("Got unexpected retraction PMID: %s", retracted_in)
 	}
 }

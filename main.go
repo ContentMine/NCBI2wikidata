@@ -180,6 +180,9 @@ type Record struct {
 	EPMCLicenseProse string
 	PMID             string
 	PMCID            string
+	IsRetracted      bool
+	IsRetraction     bool
+	RetractedByPMID  string
 }
 
 func batch(term string, ncbi_api_key string, license_lookup map[string]string, csv_file *os.File, qs_file *os.File) error {
@@ -208,6 +211,7 @@ func batch(term string, ncbi_api_key string, license_lookup map[string]string, c
 
 	// Things to build up as we fetch the results from PMC...
 	records := make([]Record, 0)
+	pmid_list := make([]string, 0)
 	pmcid_list := make([]string, 0)
 	issn_list := make([]string, 0)
 	main_subject_list := make([]string, 0)
@@ -291,6 +295,11 @@ func batch(term string, ncbi_api_key string, license_lookup map[string]string, c
 				issn_list = append(issn_list, issn)
 			}
 
+			retraction_pmid := article.GetRetractedInPMID()
+			if retraction_pmid != "" {
+			    pmid_list = append(pmid_list, retraction_pmid)
+			}
+
 			r := Record{
 				Title:            article.MedlineCitation.Article[0].ArticleTitle,
 				PMID:             article.MedlineCitation.PMID,
@@ -303,6 +312,9 @@ func batch(term string, ncbi_api_key string, license_lookup map[string]string, c
 				Publication:      article.MedlineCitation.Article[0].Journal.Title,
 				ISSN:             issn,
 				IsReview:         article.IsReview(),
+				IsRetracted:      article.IsRetracted(),
+				IsRetraction:     article.IsRetraction(),
+				RetractedByPMID:  retraction_pmid,
 			}
 
 			records = append(records, r)
@@ -314,6 +326,10 @@ func batch(term string, ncbi_api_key string, license_lookup map[string]string, c
 	pmcid_wikidata_items, err := PMCIDsToWDItem(pmcid_list)
 	if err != nil {
 		return fmt.Errorf("Failed fetching %d PMCID items: %v", len(pmcid_list), err)
+	}
+	pmid_wikidata_items, err := PMIDsToWDItem(pmid_list)
+	if err != nil {
+		return fmt.Errorf("Failed fetching %d PMID items: %v", len(pmid_list), err)
 	}
 	issn_wikidata_items, err := ISSNsToWDItem(issn_list)
 	if err != nil {
@@ -341,6 +357,8 @@ func batch(term string, ncbi_api_key string, license_lookup map[string]string, c
 			license_item = CC_LICENSE_ITEM_IDS[record.PMCLicense]
 			license_source = PMC_ITEM
 		}
+
+		retracted_by_item := pmid_wikidata_items[record.RetractedByPMID]
 
 		if item != "" {
 			statement := AddStringPropertyToItem(item, PMCID_PROPERTY, record.PMCID)
@@ -391,6 +409,27 @@ func batch(term string, ncbi_api_key string, license_lookup map[string]string, c
 				}
 			}
 
+            if record.IsRetracted {
+				statement := AddItemPropertyToItem(item, INSTANCE_OF_PROPERTY, RETRACTED_PAPER_TYPE)
+				statement.AddSource(STATED_IN_SOURCE, PMC_ITEM)
+				statement.AddSource(RETRIEVED_AT_DATE_SOURCE, fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/11", now.Year(), now.Month(), now.Day()))
+				qs_file.WriteString(fmt.Sprintf("%v", statement))
+
+				if retracted_by_item != "" {
+                    statement := AddItemPropertyToItem(item, RETRACTED_BY_PROPERTY, retracted_by_item)
+                    statement.AddSource(STATED_IN_SOURCE, PMC_ITEM)
+                    statement.AddSource(RETRIEVED_AT_DATE_SOURCE, fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/11", now.Year(), now.Month(), now.Day()))
+                    qs_file.WriteString(fmt.Sprintf("%v", statement))
+				}
+            }
+
+            if record.IsRetraction {
+				statement := AddItemPropertyToItem(item, INSTANCE_OF_PROPERTY, RETRACTION_NOTICE_TYPE)
+				statement.AddSource(STATED_IN_SOURCE, PMC_ITEM)
+				statement.AddSource(RETRIEVED_AT_DATE_SOURCE, fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/11", now.Year(), now.Month(), now.Day()))
+				qs_file.WriteString(fmt.Sprintf("%v", statement))
+            }
+
 			qs_file.WriteString("\n")
 		}
 
@@ -417,10 +456,21 @@ func batch(term string, ncbi_api_key string, license_lookup map[string]string, c
 			review_str = "true"
 		}
 
-		csv_file.WriteString(fmt.Sprintf("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
+		retracted_str := "false"
+		if record.IsRetracted {
+		    retracted_str = "true"
+		}
+
+		retraction_str := "false"
+		if record.IsRetracted {
+		    retraction_str = "true"
+		}
+
+		csv_file.WriteString(fmt.Sprintf("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
 			record.Title, item, record.PMID, record.PMCID, record.PMCLicense,
 			record.EPMCLicenseLink, license_item, main_subjects,
-			record.PublicationDate, record.Publication, record.ISSN, issn_item, review_str))
+			record.PublicationDate, record.Publication, record.ISSN, issn_item, review_str,
+			retracted_str, record.RetractedByPMID, retracted_by_item, retraction_str))
 	}
 
 	return nil
@@ -464,7 +514,7 @@ func main() {
 		panic(err)
 	}
 	defer csv_file.Close()
-	csv_file.WriteString("Title\tItem\tPMID\tPMCID\tLicense PMC\tLicense EPMC\tLicense Item\tMain Subjects\tPublication Date\tPublication\tISSN\tISSN item\tIs Review Article\n")
+	csv_file.WriteString("Title\tItem\tPMID\tPMCID\tLicense PMC\tLicense EPMC\tLicense Item\tMain Subjects\tPublication Date\tPublication\tISSN\tISSN item\tIs Review Article\tIs retracted\tRetracted by\tRetacted by item\tIs retraction\n")
 
 	for _, term := range term_feed {
 		x := fmt.Sprintf("\"%s\"[Mesh Major Topic] AND Review[ptyp]", term)
