@@ -45,6 +45,7 @@ License
 
 This software is copyright Content Mine Ltd 2019, and released under the Apache 2.0 License.
 
+This software calls the NCBI PubMed API, which is subject to the following disclaimer and copyright notice: https://www.ncbi.nlm.nih.gov/home/about/policies/
 
 Dependencies
 ============
