@@ -378,21 +378,14 @@ func batch(term string, ncbi_api_key string, license_lookup map[string]string, c
 		issn_item := issn_wikidata_items[record.ISSN]
 
 		license_item := CC_LICENSE_ITEM_IDS[record.EPMCLicenseLink]
-		license_source := europmc.FullTextURL(record.PMCID)
-		license_source_property := OFFICIAL_WEBSITE_SOURCE
+		license_source := EuroPMC_ITEM
 		if license_item == "" {
 			license_item = CC_LICENSE_ITEM_IDS[record.PMCLicense]
 			license_source = PMC_ITEM
-			license_source_property = STATED_IN_SOURCE
 		}
 
 		if item != "" {
-			statement := AddStringPropertyToItem(item, PMID_PROPERTY, record.PMID)
-			statement.AddSource(STATED_IN_SOURCE, PMC_ITEM)
-			statement.AddSource(RETRIEVED_AT_DATE_SOURCE, fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/11", now.Year(), now.Month(), now.Day()))
-			qs_file.WriteString(fmt.Sprintf("%v", statement))
-
-			statement = AddStringPropertyToItem(item, PMCID_PROPERTY, record.PMCID)
+			statement := AddStringPropertyToItem(item, PMCID_PROPERTY, record.PMCID)
 			statement.AddSource(STATED_IN_SOURCE, PMC_ITEM)
 			statement.AddSource(RETRIEVED_AT_DATE_SOURCE, fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/11", now.Year(), now.Month(), now.Day()))
 			qs_file.WriteString(fmt.Sprintf("%v", statement))
@@ -413,7 +406,7 @@ func batch(term string, ncbi_api_key string, license_lookup map[string]string, c
 
 			if license_item != "" {
 				statement := AddItemPropertyToItem(item, LICENSE_PROPERTY, license_item)
-				statement.AddSource(license_source_property, license_source)
+				statement.AddSource(STATED_IN_SOURCE, license_source)
 				statement.AddSource(RETRIEVED_AT_DATE_SOURCE, fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/11", now.Year(), now.Month(), now.Day()))
 				qs_file.WriteString(fmt.Sprintf("%v", statement))
 			}
