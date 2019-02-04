@@ -306,7 +306,7 @@ func batch(term string, ncbi_api_key string, license_lookup map[string]string, c
 			// Distill out what we want from the article
 			record, err := ArticleToRecord(article, license_lookup)
 			if err != nil {
-				log.Printf("Failed to process article: %v", err)
+				//log.Printf("Failed to process article: %v", err)
 				continue
 			}
 
@@ -532,7 +532,7 @@ func main() {
 	csv_file.WriteString("Title\tItem\tPMID\tPMCID\tLicense PMC\tLicense EPMC\tLicense Item\tMain Subjects\tPublication Date\tPublication\tISSN\tISSN item\tIs Review Article\tIs retracted\tRetracted by\tRetacted by item\tIs retraction\n")
 
 	for _, term := range term_feed {
-		x := fmt.Sprintf("\"%s\"[Mesh Major Topic] AND Review[ptyp]", term)
+		x := fmt.Sprintf("\"%s\"[Mesh Major Topic] AND (Review[ptyp] OR \"Retraction of Publication\"[PTYP])", term)
 		err := batch(x, ncbi_api_key, license_lookup, csv_file, qs_file)
 		if err != nil {
 			panic(err)
