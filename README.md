@@ -33,7 +33,7 @@ In addition to PubMed, the tool will lookup more detailed license information fr
 Building
 ===========
 
-ScienceSourceIngest is written in Go, and built with Make. If your system has both the Go toolchain installed and Make, then you should be able to just run:
+NCBI2wikidata is written in Go, and built with Make. If your system has both the Go toolchain installed and Make, then you should be able to just run:
 
 ```make```
 
