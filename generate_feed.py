@@ -49,7 +49,7 @@ SELECT DISTINCT ?item ?MeSHID ?itemLabel
 
 r = requests.post("https://query.wikidata.org/sparql", {"query": TOP_LEVEL, "format": "json"})
 
-list = []
+s = set()
 
 for c in r.json()["results"]["bindings"]:
 
@@ -62,10 +62,12 @@ for c in r.json()["results"]["bindings"]:
     print "We got %d specifics for %s" % (len(results), c['specLabel']['value'])
 
     for d in results:
-        list.append(d["itemLabel"]["value"])
+        s.add(d["itemLabel"]["value"])
 
 
-print "We found %d terms" % len(list)
+print "We found %d terms" % len(s)
 
+l = list(s)
+l.sort()
 with open("generated_feed.json", "w") as f:
-    json.dump(list, f, indent=4)
+    json.dump(l, f, indent=4)
