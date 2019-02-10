@@ -1,0 +1,158 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PubmedArticleSet PUBLIC "-//NLM//DTD PubMedArticle, 1st January 2019//EN" "https://dtd.nlm.nih.gov/ncbi/pubmed/out/pubmed_190101.dtd">
+<PubmedArticleSet>
+<PubmedArticle>
+    <MedlineCitation Status="In-Data-Review" Owner="NLM">
+        <PMID Version="1">30683838</PMID>
+        <DateRevised>
+            <Year>2019</Year>
+            <Month>01</Month>
+            <Day>29</Day>
+        </DateRevised>
+        <Article PubModel="Electronic">
+            <Journal>
+                <ISSN IssnType="Electronic">2041-4889</ISSN>
+                <JournalIssue CitedMedium="Internet">
+                    <Volume>10</Volume>
+                    <Issue>2</Issue>
+                    <PubDate>
+                        <Year>2019</Year>
+                        <Month>Jan</Month>
+                        <Day>25</Day>
+                    </PubDate>
+                </JournalIssue>
+                <Title>Cell death &amp; disease</Title>
+                <ISOAbbreviation>Cell Death Dis</ISOAbbreviation>
+            </Journal>
+            <ArticleTitle>Retraction Note: Hsa-miR-623 suppresses tumor progression in human lung adenocarcinoma.</ArticleTitle>
+            <Pagination>
+                <MedlinePgn>60</MedlinePgn>
+            </Pagination>
+            <ELocationID EIdType="doi" ValidYN="Y">10.1038/s41419-019-1300-3</ELocationID>
+            <Abstract>
+                <AbstractText>The authors have retracted the article [Hsa-miR-623 suppresses tumor progression in human lung adenocarcinoma, Cell Death &amp; Disease volume 7, page e2388 (2016), doi 10.1038/cddis.2016.260] because it has recently come to their attention that the A549 cells used in this research were contaminated with Hela cells, which may have altered the outcome of their experiment. The conclusions of this article are therefore unreliable. All authors agree to this retraction.</AbstractText>
+            </Abstract>
+            <AuthorList CompleteYN="Y">
+                <Author ValidYN="Y">
+                    <LastName>Wei</LastName>
+                    <ForeName>Shuang</ForeName>
+                    <Initials>S</Initials>
+                    <AffiliationInfo>
+                        <Affiliation>Department of Respiratory and Critical Care Medicine, Key Laboratory of Pulmonary Diseases of Health Ministry, Key Cite of National Clinical Research Center for Respiratory Disease, Tongji Hospital, Tongji Medical College Huazhong University of Science and Technology, 1095 Jie Fang Avenue, 430030, Wuhan, China.</Affiliation>
+                    </AffiliationInfo>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Zhang</LastName>
+                    <ForeName>Zun-Yi</ForeName>
+                    <Initials>ZY</Initials>
+                    <AffiliationInfo>
+                        <Affiliation>Department of Surgery, Tongji Hospital, Tongji Medical College Huazhong University of Science and Technology, 1095 Jie Fang Da Dao, 430030, Wuhan, China.</Affiliation>
+                    </AffiliationInfo>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Fu</LastName>
+                    <ForeName>Sheng-Ling</ForeName>
+                    <Initials>SL</Initials>
+                    <AffiliationInfo>
+                        <Affiliation>Department of Surgery, Tongji Hospital, Tongji Medical College Huazhong University of Science and Technology, 1095 Jie Fang Da Dao, 430030, Wuhan, China.</Affiliation>
+                    </AffiliationInfo>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Xie</LastName>
+                    <ForeName>Jun-Gang</ForeName>
+                    <Initials>JG</Initials>
+                    <AffiliationInfo>
+                        <Affiliation>Department of Respiratory and Critical Care Medicine, Key Laboratory of Pulmonary Diseases of Health Ministry, Key Cite of National Clinical Research Center for Respiratory Disease, Tongji Hospital, Tongji Medical College Huazhong University of Science and Technology, 1095 Jie Fang Avenue, 430030, Wuhan, China.</Affiliation>
+                    </AffiliationInfo>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Liu</LastName>
+                    <ForeName>Xian-Sheng</ForeName>
+                    <Initials>XS</Initials>
+                    <AffiliationInfo>
+                        <Affiliation>Department of Respiratory and Critical Care Medicine, Key Laboratory of Pulmonary Diseases of Health Ministry, Key Cite of National Clinical Research Center for Respiratory Disease, Tongji Hospital, Tongji Medical College Huazhong University of Science and Technology, 1095 Jie Fang Avenue, 430030, Wuhan, China.</Affiliation>
+                    </AffiliationInfo>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Xu</LastName>
+                    <ForeName>Yong-Jian</ForeName>
+                    <Initials>YJ</Initials>
+                    <AffiliationInfo>
+                        <Affiliation>Department of Respiratory and Critical Care Medicine, Key Laboratory of Pulmonary Diseases of Health Ministry, Key Cite of National Clinical Research Center for Respiratory Disease, Tongji Hospital, Tongji Medical College Huazhong University of Science and Technology, 1095 Jie Fang Avenue, 430030, Wuhan, China.</Affiliation>
+                    </AffiliationInfo>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Zhao</LastName>
+                    <ForeName>Jian-Ping</ForeName>
+                    <Initials>JP</Initials>
+                    <AffiliationInfo>
+                        <Affiliation>Department of Respiratory and Critical Care Medicine, Key Laboratory of Pulmonary Diseases of Health Ministry, Key Cite of National Clinical Research Center for Respiratory Disease, Tongji Hospital, Tongji Medical College Huazhong University of Science and Technology, 1095 Jie Fang Avenue, 430030, Wuhan, China. zhaojp88@126.com.</Affiliation>
+                    </AffiliationInfo>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Xiong</LastName>
+                    <ForeName>Wei-Ning</ForeName>
+                    <Initials>WN</Initials>
+                    <AffiliationInfo>
+                        <Affiliation>Department of Respiratory and Critical Care Medicine, Key Laboratory of Pulmonary Diseases of Health Ministry, Key Cite of National Clinical Research Center for Respiratory Disease, Tongji Hospital, Tongji Medical College Huazhong University of Science and Technology, 1095 Jie Fang Avenue, 430030, Wuhan, China. xiongweining@tjh.tjmu.edu.cn.</Affiliation>
+                    </AffiliationInfo>
+                </Author>
+            </AuthorList>
+            <Language>eng</Language>
+            <PublicationTypeList>
+                <PublicationType UI="D016425">Published Erratum</PublicationType>
+                <PublicationType UI="D016440">Retraction of Publication</PublicationType>
+            </PublicationTypeList>
+            <ArticleDate DateType="Electronic">
+                <Year>2019</Year>
+                <Month>01</Month>
+                <Day>25</Day>
+            </ArticleDate>
+        </Article>
+        <MedlineJournalInfo>
+            <Country>England</Country>
+            <MedlineTA>Cell Death Dis</MedlineTA>
+            <NlmUniqueID>101524092</NlmUniqueID>
+        </MedlineJournalInfo>
+        <CommentsCorrectionsList>
+            <CommentsCorrections RefType="RetractionOf">
+                <RefSource>Cell Death Dis. 2016 Sep 29;7(9):e2388</RefSource>
+                <PMID Version="1">27685632</PMID>
+            </CommentsCorrections>
+        </CommentsCorrectionsList>
+    </MedlineCitation>
+    <PubmedData>
+        <History>
+            <PubMedPubDate PubStatus="entrez">
+                <Year>2019</Year>
+                <Month>1</Month>
+                <Day>27</Day>
+                <Hour>6</Hour>
+                <Minute>0</Minute>
+            </PubMedPubDate>
+            <PubMedPubDate PubStatus="pubmed">
+                <Year>2019</Year>
+                <Month>1</Month>
+                <Day>27</Day>
+                <Hour>6</Hour>
+                <Minute>0</Minute>
+            </PubMedPubDate>
+            <PubMedPubDate PubStatus="medline">
+                <Year>2019</Year>
+                <Month>1</Month>
+                <Day>27</Day>
+                <Hour>6</Hour>
+                <Minute>0</Minute>
+            </PubMedPubDate>
+        </History>
+        <PublicationStatus>epublish</PublicationStatus>
+        <ArticleIdList>
+            <ArticleId IdType="pubmed">30683838</ArticleId>
+            <ArticleId IdType="doi">10.1038/s41419-019-1300-3</ArticleId>
+            <ArticleId IdType="pii">10.1038/s41419-019-1300-3</ArticleId>
+            <ArticleId IdType="pmc">PMC6347590</ArticleId>
+        </ArticleIdList>
+    </PubmedData>
+</PubmedArticle>
+
+</PubmedArticleSet>

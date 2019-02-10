@@ -33,11 +33,19 @@ In addition to PubMed, the tool will lookup more detailed license information fr
 Building
 ===========
 
-NCBI2wikidata is written in Go, and built with Make. If your system has both the Go toolchain installed and Make, then you should be able to just run:
+NCBI2wikidata is written in Go, and built with Make. If your system has both the Go toolchain installed and Make. You also need to set GOPATH to the directory of the project. If you're in the root directory of this source tree then you can simply type:
+
+```export GOPATH=$PWD```
+
+You will need to fetch the libraries that this depends on, which you can do with:
+
+```make get```
+
+Then you should be able to just run:
 
 ```make```
 
-And the tool will be built.
+And the tool will be built and put into the `$GOPATH/bin` directory.
 
 
 Generating the feed

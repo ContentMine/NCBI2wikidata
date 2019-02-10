@@ -15,8 +15,24 @@
 package main
 
 import (
+    "encoding/xml"
+    "os"
 	"testing"
+
+	"github.com/ContentMine/EUtils"
 )
+
+func loadXML(filename string) (EUtils.PubmedArticleSet, error) {
+	var set EUtils.PubmedArticleSet
+
+	f, err := os.Open(filename)
+	if err != nil {
+		return EUtils.PubmedArticleSet{}, err
+	}
+
+	err = xml.NewDecoder(f).Decode(&set)
+	return set, err
+}
 
 func TestRercordGen(t *testing.T) {
 
@@ -96,9 +112,9 @@ func TestRercordGen(t *testing.T) {
 			t.Fatalf("Failed to process article to record: %v", err)
 		}
 
-        if record.PMCLicense != "TEST" {
+		if record.PMCLicense != "TEST" {
 			t.Errorf("License in record incorrect: %s not %s", record.PMCLicense, "TEST")
-        }
+		}
 
 		if record.PMID != testitem.PMID {
 			t.Errorf("PMID in record incorrect: %s not %s", record.PMID, testitem.PMID)

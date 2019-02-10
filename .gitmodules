@@ -1,0 +1,6 @@
+[submodule "src/github.com/ContentMine/NCBI2wikidata/vendor/github.com/ContentMine/go-europmc"]
+	path = src/github.com/ContentMine/NCBI2wikidata/vendor/github.com/ContentMine/go-europmc
+	url = https://github.com/ContentMine/go-europmc.git
+[submodule "src/github.com/ContentMine/NCBI2wikidata/vendor/github.com/jlaffaye/ftp"]
+	path = src/github.com/ContentMine/NCBI2wikidata/vendor/github.com/jlaffaye/ftp
+	url = https://github.com/jlaffaye/ftp.git

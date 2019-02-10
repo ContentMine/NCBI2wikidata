@@ -12,13 +12,14 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-package main
+package EUtils
 
 import (
 	"encoding/xml"
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
@@ -237,6 +238,38 @@ func (article PubmedArticle) GetMajorTopics() []MeshDescriptorName {
 	}
 
 	return subjects
+}
+
+var MONTH_TO_INT = map[string]int{
+	"jan": 1,
+	"feb": 2,
+	"mar": 3,
+	"apr": 4,
+	"may": 5,
+	"jun": 6,
+	"jul": 7,
+	"aug": 8,
+	"sep": 9,
+	"oct": 10,
+	"nov": 11,
+	"dec": 12,
+}
+
+func monthStringToInt(m string) (int, error) {
+
+	// Sometimes it's a number as a string
+	x, err := strconv.Atoi(m)
+	if err == nil {
+		return x, nil
+	}
+
+	// sometimes it's as human readable shorted text
+	v, ok := MONTH_TO_INT[strings.ToLower(m)]
+	if ok {
+		return v, nil
+	}
+
+	return 0, fmt.Errorf("Failed to translate month %s to number", m)
 }
 
 func (article PubmedArticle) GetPublicationDateString() string {

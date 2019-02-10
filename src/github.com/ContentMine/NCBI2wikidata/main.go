@@ -27,6 +27,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ContentMine/EUtils"
 	europmc "github.com/ContentMine/go-europmc"
 	"github.com/jlaffaye/ftp"
 )
@@ -35,38 +36,6 @@ const EFETCH_BATCH_SIZE = 200
 
 const NCBI_LICENSE_URL = "ftp://ftp.ncbi.nlm.nih.gov:21/pub/pmc/oa_file_list.txt"
 const NCBI_FILE_FILE = "oa_file_list.txt"
-
-var MONTH_TO_INT = map[string]int{
-	"jan": 1,
-	"feb": 2,
-	"mar": 3,
-	"apr": 4,
-	"may": 5,
-	"jun": 6,
-	"jul": 7,
-	"aug": 8,
-	"sep": 9,
-	"oct": 10,
-	"nov": 11,
-	"dec": 12,
-}
-
-func monthStringToInt(m string) (int, error) {
-
-	// Sometimes it's a number as a string
-	x, err := strconv.Atoi(m)
-	if err == nil {
-		return x, nil
-	}
-
-	// sometimes it's as human readable shorted text
-	v, ok := MONTH_TO_INT[strings.ToLower(m)]
-	if ok {
-		return v, nil
-	}
-
-	return 0, fmt.Errorf("Failed to translate month %s to number", m)
-}
 
 func FetchLicenses(target_filename string, ftp_location string) error {
 	url, err := url.Parse(ftp_location)
@@ -170,7 +139,7 @@ func LoadLicenses(filename string) (map[string]string, error) {
 
 type Record struct {
 	Title           string
-	MainSubjects    []MeshDescriptorName
+	MainSubjects    []EUtils.MeshDescriptorName
 	IsReview        bool
 	PublicationDate string
 	Publication     string
@@ -214,7 +183,7 @@ func GetEuroPMCLicenseLinkForPMCID(pmcid string) (string, error) {
 	return license_info.Link, nil
 }
 
-func ArticleToRecord(article PubmedArticle, license_lookup map[string]string) (Record, error) {
+func ArticleToRecord(article EUtils.PubmedArticle, license_lookup map[string]string) (Record, error) {
 
 	pmcid := article.GetPMCID()
 
@@ -254,7 +223,7 @@ func batch(term string, ncbi_api_key string, license_lookup map[string]string, c
 	// Because we use the history feature of the eUtilities API, it doesn't matter how many
 	// things get returned here, we rely on the eFetch API to get all the deets. Hence the
 	// single request here. We really are just doing this to light up things later
-	search_request := ESearchRequest{
+	search_request := EUtils.ESearchRequest{
 		DB:         "pubmed",
 		APIKey:     os.Getenv("NCBI_API_KEY"),
 		Term:       term,
@@ -282,7 +251,7 @@ func batch(term string, ncbi_api_key string, license_lookup map[string]string, c
 
 	for i := 0; i < count; i += EFETCH_BATCH_SIZE {
 
-		fetch_request := EFetchHistoryRequest{
+		fetch_request := EUtils.EFetchHistoryRequest{
 			DB:       "pubmed",
 			WebEnv:   search_resp.WebEnv,
 			QueryKey: search_resp.QueryKey,
