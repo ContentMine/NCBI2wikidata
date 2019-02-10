@@ -15,8 +15,8 @@
 package main
 
 import (
-    "encoding/xml"
-    "os"
+	"encoding/xml"
+	"os"
 	"testing"
 
 	"github.com/ContentMine/EUtils"

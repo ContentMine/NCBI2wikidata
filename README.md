@@ -51,13 +51,11 @@ And the tool will be built and put into the `$GOPATH/bin` directory.
 Generating the feed
 ===================
 
-There is a python script with the tool that you can use to generate a list of potential search terms. If you just run
+There is a tool that you can use to generate a list of potential search terms. If you just run
 
-```python generate_feed.py```
+```bin/GenerateMeshTerms```
 
 it will write out a JSON file of the top diseases from the list health specialities.
-
-This script requires the "requests" python package.
 
 
 License
