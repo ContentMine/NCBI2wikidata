@@ -37,6 +37,20 @@ const EFETCH_BATCH_SIZE = 200
 const NCBI_LICENSE_URL = "ftp://ftp.ncbi.nlm.nih.gov:21/pub/pmc/oa_file_list.txt"
 const NCBI_FILE_FILE = "oa_file_list.txt"
 
+type NCBILicense int
+
+const (
+	NCBI_LICENSE_UNKNOWN NCBILicense = iota
+	NCBI_LICENSE_CC_BY
+	NCBI_LICENSE_CC0
+	NCBI_LICENSE_CC_BY_NC_SA
+	NCBI_LICENSE_NO_CC
+	NCBI_LICENSE_CC_BY_ND
+	NCBI_LICENSE_CC_BY_NC
+	NCBI_LICENSE_CC_BY_SA
+	NCBI_LICENSE_CC_BY_NC_ND
+)
+
 func FetchLicenses(target_filename string, ftp_location string) error {
 	url, err := url.Parse(ftp_location)
 	if err != nil {
@@ -78,7 +92,7 @@ func FetchLicenses(target_filename string, ftp_location string) error {
 // First line is date file was generated, rest are tab separated info on papers. Example:
 // oa_package/87/30/PMC17774.tar.gz	Arthritis Res. 1999 Oct 14; 1(1):63-70	PMC17774	PMID:11056661	NO-CC CODE
 //
-func LoadLicenses(filename string) (map[string]string, error) {
+func LoadLicenses(filename string) (map[string]NCBILicense, error) {
 
 	f, err := os.Open(filename)
 	if err != nil {
@@ -103,7 +117,7 @@ func LoadLicenses(filename string) (map[string]string, error) {
 
 	reader := bufio.NewReader(f)
 
-	lookup := make(map[string]string)
+	lookup := make(map[string]NCBILicense)
 
 	var line string
 	for {
@@ -120,18 +134,40 @@ func LoadLicenses(filename string) (map[string]string, error) {
 		pmid := parts[3]
 		license := strings.TrimSuffix(parts[4], "\n")
 
+		license_code := NCBI_LICENSE_UNKNOWN
+		switch license {
+		case "CC BY-NC-SA":
+			license_code = NCBI_LICENSE_CC_BY_NC_SA
+		case "NO-CC CODE":
+			license_code = NCBI_LICENSE_NO_CC
+		case "CC0":
+			license_code = NCBI_LICENSE_CC0
+		case "CC BY-ND":
+			license_code = NCBI_LICENSE_CC_BY_ND
+		case "CC BY-SA":
+			license_code = NCBI_LICENSE_CC_BY_SA
+		case "CC BY":
+			license_code = NCBI_LICENSE_CC_BY
+		case "CC BY-NC-ND":
+			license_code = NCBI_LICENSE_CC_BY_NC_ND
+		case "CC BY-NC":
+			license_code = NCBI_LICENSE_CC_BY_NC
+		default:
+			return nil, fmt.Errorf("Found unexpected license %s", license)
+		}
+
 		split_pmid := strings.Split(pmid, ":")
 		if len(split_pmid) == 2 {
 			// Not all entries have a PMID, but this one did
-			lookup[split_pmid[1]] = license
+			lookup[split_pmid[1]] = license_code
 		} else {
-            // If there was no PMID, try to store the PMCID
-            if len(parts[2]) > 0 {
-                lookup[parts[2]] = license
-            } else {
-                log.Printf("No ID for %s", line)
-            }
-        }
+			// If there was no PMID, try to store the PMCID
+			if len(parts[2]) > 0 {
+				lookup[parts[2]] = license_code
+			} else {
+				log.Printf("No ID for %s", line)
+			}
+		}
 	}
 
 	return lookup, nil
@@ -183,23 +219,45 @@ func GetEuroPMCLicenseLinkForPMCID(pmcid string) (string, error) {
 	return license_info.Link, nil
 }
 
-func ArticleToRecord(article EUtils.PubmedArticle, license_lookup map[string]string) (Record, error) {
+func ArticleToRecord(article EUtils.PubmedArticle, license_lookup map[string]NCBILicense) (Record, error) {
 
 	pmcid := article.GetPMCID()
 
-	var license string
+	license_code := NCBI_LICENSE_UNKNOWN
 	if l, ok := license_lookup[article.GetPMID()]; ok {
-		license = l
+		license_code = l
 	}
-	if license == "" {
+	if license_code == NCBI_LICENSE_UNKNOWN {
 		// didn't find one with PMID, try PMCID
 		if l, ok := license_lookup[pmcid]; ok {
-			license = l
+			license_code = l
 		}
 	}
 
-	if license == "" {
+	if license_code == NCBI_LICENSE_UNKNOWN {
 		return Record{}, fmt.Errorf("No open access license information for paper %s", article.GetPMID())
+	}
+
+	license := ""
+	switch license_code {
+	case NCBI_LICENSE_CC_BY:
+		license = "CC BY"
+	case NCBI_LICENSE_CC0:
+		license = "CC0"
+	case NCBI_LICENSE_CC_BY_NC_SA:
+		license = "CC BY-NC-SA"
+	case NCBI_LICENSE_NO_CC:
+		license = "NO-CC CODE"
+	case NCBI_LICENSE_CC_BY_ND:
+		license = "CC BY-ND"
+	case NCBI_LICENSE_CC_BY_NC:
+		license = "CC BY-NC"
+	case NCBI_LICENSE_CC_BY_SA:
+		license = "CC BY-SA"
+	case NCBI_LICENSE_CC_BY_NC_ND:
+		license = "CC BY-NC-ND"
+	default:
+		return Record{}, fmt.Errorf("Unrecognised license code %d", license_code)
 	}
 
 	return Record{
@@ -218,7 +276,7 @@ func ArticleToRecord(article EUtils.PubmedArticle, license_lookup map[string]str
 	}, nil
 }
 
-func batch(term string, ncbi_api_key string, license_lookup map[string]string, csv_file *os.File, qs_file *os.File) error {
+func batch(term string, ncbi_api_key string, license_lookup map[string]NCBILicense, csv_file *os.File, qs_file *os.File) error {
 
 	// Because we use the history feature of the eUtilities API, it doesn't matter how many
 	// things get returned here, we rely on the eFetch API to get all the deets. Hence the
