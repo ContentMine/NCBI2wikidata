@@ -124,14 +124,14 @@ func LoadLicenses(filename string) (map[string]string, error) {
 		if len(split_pmid) == 2 {
 			// Not all entries have a PMID, but this one did
 			lookup[split_pmid[1]] = license
-		}
-
-		// Also add in the PMCID
-		if len(parts[2]) > 0 {
-			lookup[parts[2]] = license
 		} else {
-			fmt.Printf("%s", line)
-		}
+            // If there was no PMID, try to store the PMCID
+            if len(parts[2]) > 0 {
+                lookup[parts[2]] = license
+            } else {
+                log.Printf("No ID for %s", line)
+            }
+        }
 	}
 
 	return lookup, nil
