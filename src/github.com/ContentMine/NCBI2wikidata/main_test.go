@@ -103,18 +103,7 @@ func TestRercordGen(t *testing.T) {
 
 		article := article_set.Articles[0]
 
-		license_lookup := make(map[string]string, 0)
-		license_lookup[article.GetPMID()] = "TEST"
-
-		record, err := ArticleToRecord(article, license_lookup)
-
-		if err != nil {
-			t.Fatalf("Failed to process article to record: %v", err)
-		}
-
-		if record.PMCLicense != "TEST" {
-			t.Errorf("License in record incorrect: %s not %s", record.PMCLicense, "TEST")
-		}
+		record := ArticleToRecord(article)
 
 		if record.PMID != testitem.PMID {
 			t.Errorf("PMID in record incorrect: %s not %s", record.PMID, testitem.PMID)

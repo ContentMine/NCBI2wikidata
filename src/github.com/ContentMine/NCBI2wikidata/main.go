@@ -37,20 +37,6 @@ const EFETCH_BATCH_SIZE = 200
 const NCBI_LICENSE_URL = "ftp://ftp.ncbi.nlm.nih.gov:21/pub/pmc/oa_file_list.txt"
 const NCBI_FILE_FILE = "oa_file_list.txt"
 
-type NCBILicense int
-
-const (
-	NCBI_LICENSE_UNKNOWN NCBILicense = iota
-	NCBI_LICENSE_CC_BY
-	NCBI_LICENSE_CC0
-	NCBI_LICENSE_CC_BY_NC_SA
-	NCBI_LICENSE_NO_CC
-	NCBI_LICENSE_CC_BY_ND
-	NCBI_LICENSE_CC_BY_NC
-	NCBI_LICENSE_CC_BY_SA
-	NCBI_LICENSE_CC_BY_NC_ND
-)
-
 func FetchLicenses(target_filename string, ftp_location string) error {
 	url, err := url.Parse(ftp_location)
 	if err != nil {
@@ -92,7 +78,7 @@ func FetchLicenses(target_filename string, ftp_location string) error {
 // First line is date file was generated, rest are tab separated info on papers. Example:
 // oa_package/87/30/PMC17774.tar.gz	Arthritis Res. 1999 Oct 14; 1(1):63-70	PMC17774	PMID:11056661	NO-CC CODE
 //
-func LoadLicenses(filename string) (map[string]NCBILicense, error) {
+func LoadLicenses(filename string, license_map map[string]string) error {
 
 	f, err := os.Open(filename)
 	if err != nil {
@@ -101,23 +87,21 @@ func LoadLicenses(filename string) (map[string]NCBILicense, error) {
 			log.Printf("Fetching PMC open access list, this may take some time...")
 			err := FetchLicenses(filename, NCBI_LICENSE_URL)
 			if err != nil {
-				return nil, err
+				return err
 			}
 			log.Printf("Fetching PMC open access list complete.")
 			// Now try again
 			f, err = os.Open(filename)
 			if err != nil {
-				return nil, err
+				return err
 			}
 		} else {
-			return nil, err
+			return err
 		}
 	}
 	defer f.Close()
 
 	reader := bufio.NewReader(f)
-
-	lookup := make(map[string]NCBILicense)
 
 	var line string
 	for {
@@ -131,46 +115,28 @@ func LoadLicenses(filename string) (map[string]NCBILicense, error) {
 			continue
 		}
 
-		pmid := parts[3]
-		license := strings.TrimSuffix(parts[4], "\n")
-
-		license_code := NCBI_LICENSE_UNKNOWN
-		switch license {
-		case "CC BY-NC-SA":
-			license_code = NCBI_LICENSE_CC_BY_NC_SA
-		case "NO-CC CODE":
-			license_code = NCBI_LICENSE_NO_CC
-		case "CC0":
-			license_code = NCBI_LICENSE_CC0
-		case "CC BY-ND":
-			license_code = NCBI_LICENSE_CC_BY_ND
-		case "CC BY-SA":
-			license_code = NCBI_LICENSE_CC_BY_SA
-		case "CC BY":
-			license_code = NCBI_LICENSE_CC_BY
-		case "CC BY-NC-ND":
-			license_code = NCBI_LICENSE_CC_BY_NC_ND
-		case "CC BY-NC":
-			license_code = NCBI_LICENSE_CC_BY_NC
-		default:
-			return nil, fmt.Errorf("Found unexpected license %s", license)
+		var pmid string
+		prefixed_pmid := parts[3]
+		split_pmid := strings.Split(prefixed_pmid, ":")
+		if len(split_pmid) == 2 {
+			pmid = split_pmid[1]
 		}
 
-		split_pmid := strings.Split(pmid, ":")
-		if len(split_pmid) == 2 {
-			// Not all entries have a PMID, but this one did
-			lookup[split_pmid[1]] = license_code
-		} else {
-			// If there was no PMID, try to store the PMCID
-			if len(parts[2]) > 0 {
-				lookup[parts[2]] = license_code
-			} else {
-				log.Printf("No ID for %s", line)
-			}
+		pmcid := parts[3]
+
+		license := strings.TrimSuffix(parts[4], "\n")
+
+		// if PMID is in target list store info
+		if _, ok := license_map[pmid]; ok {
+			license_map[pmid] = license
+		}
+
+		if _, ok := license_map[pmcid]; ok {
+			license_map[pmcid] = license
 		}
 	}
 
-	return lookup, nil
+	return nil
 }
 
 type Record struct {
@@ -219,52 +185,13 @@ func GetEuroPMCLicenseLinkForPMCID(pmcid string) (string, error) {
 	return license_info.Link, nil
 }
 
-func ArticleToRecord(article EUtils.PubmedArticle, license_lookup map[string]NCBILicense) (Record, error) {
-
-	pmcid := article.GetPMCID()
-
-	license_code := NCBI_LICENSE_UNKNOWN
-	if l, ok := license_lookup[article.GetPMID()]; ok {
-		license_code = l
-	}
-	if license_code == NCBI_LICENSE_UNKNOWN {
-		// didn't find one with PMID, try PMCID
-		if l, ok := license_lookup[pmcid]; ok {
-			license_code = l
-		}
-	}
-
-	if license_code == NCBI_LICENSE_UNKNOWN {
-		return Record{}, fmt.Errorf("No open access license information for paper %s", article.GetPMID())
-	}
-
-	license := ""
-	switch license_code {
-	case NCBI_LICENSE_CC_BY:
-		license = "CC BY"
-	case NCBI_LICENSE_CC0:
-		license = "CC0"
-	case NCBI_LICENSE_CC_BY_NC_SA:
-		license = "CC BY-NC-SA"
-	case NCBI_LICENSE_NO_CC:
-		license = "NO-CC CODE"
-	case NCBI_LICENSE_CC_BY_ND:
-		license = "CC BY-ND"
-	case NCBI_LICENSE_CC_BY_NC:
-		license = "CC BY-NC"
-	case NCBI_LICENSE_CC_BY_SA:
-		license = "CC BY-SA"
-	case NCBI_LICENSE_CC_BY_NC_ND:
-		license = "CC BY-NC-ND"
-	default:
-		return Record{}, fmt.Errorf("Unrecognised license code %d", license_code)
-	}
+func ArticleToRecord(article EUtils.PubmedArticle) Record {
 
 	return Record{
 		Title:           article.MedlineCitation.Article[0].ArticleTitle,
 		PMID:            article.MedlineCitation.PMID,
-		PMCID:           pmcid,
-		PMCLicense:      license,
+		PMCID:           article.GetPMCID(),
+		PMCLicense:      "",
 		MainSubjects:    article.GetMajorTopics(),
 		PublicationDate: article.GetPublicationDateString(),
 		Publication:     article.MedlineCitation.Article[0].Journal.Title,
@@ -273,10 +200,10 @@ func ArticleToRecord(article EUtils.PubmedArticle, license_lookup map[string]NCB
 		IsRetracted:     article.IsRetracted(),
 		IsRetraction:    article.IsRetraction(),
 		RetractedByPMID: article.GetRetractedInPMID(),
-	}, nil
+	}
 }
 
-func batch(term string, ncbi_api_key string, license_lookup map[string]NCBILicense, csv_file *os.File, qs_file *os.File) error {
+func batch(term string, ncbi_api_key string, csv_file *os.File, qs_file *os.File) error {
 
 	// Because we use the history feature of the eUtilities API, it doesn't matter how many
 	// things get returned here, we rely on the eFetch API to get all the deets. Hence the
@@ -301,11 +228,12 @@ func batch(term string, ncbi_api_key string, license_lookup map[string]NCBILicen
 	log.Printf("Search returned %d matches for %s.\n", count, term)
 
 	// Things to build up as we fetch the results from PMC...
-	records := make([]Record, 0)
+	all_records := make([]Record, 0)
 	pmid_list := make([]string, 0)
 	pmcid_list := make([]string, 0)
 	issn_list := make([]string, 0)
 	main_subject_list := make([]string, 0)
+	license_map := make(map[string]string, 0)
 
 	for i := 0; i < count; i += EFETCH_BATCH_SIZE {
 
@@ -331,18 +259,10 @@ func batch(term string, ncbi_api_key string, license_lookup map[string]NCBILicen
 		for _, article := range fetch_resp.Articles {
 
 			// Distill out what we want from the article
-			record, err := ArticleToRecord(article, license_lookup)
-			if err != nil {
-				//log.Printf("Failed to process article: %v", err)
-				continue
-			}
+			record := ArticleToRecord(article)
 
-			// see of we can get better license detail from EuroPMC
-			if record.PMCID != "" {
-				record.EPMCLicenseLink, err = GetEuroPMCLicenseLinkForPMCID(record.PMCID)
-				if err != nil {
-					log.Printf("Failed to get EPMC data for %s: %v", record.PMCID, err)
-				}
+			if record.PMID != "" {
+				license_map[record.PMID] = ""
 			}
 
 			// make a note of the things we need to look up on wikidata
@@ -357,13 +277,33 @@ func batch(term string, ncbi_api_key string, license_lookup map[string]NCBILicen
 			}
 			if record.PMCID != "" {
 				pmcid_list = append(pmcid_list, record.PMCID)
+				license_map[record.PMCID] = ""
 			}
 
-			records = append(records, record)
+			all_records = append(all_records, record)
 		}
 	}
 
-	log.Printf("We got information on %d records.\n", len(records))
+	err = LoadLicenses(NCBI_FILE_FILE, license_map)
+
+	licensed_records := make([]Record, 0)
+
+	for _, record := range all_records {
+		license, ok := license_map[record.PMID]
+		if ok && license != "" {
+			record.PMCLicense = license
+		} else {
+			license, ok := license_map[record.PMCID]
+			if ok && license != "" {
+				record.PMCLicense = license
+			} else {
+				continue
+			}
+		}
+		licensed_records = append(licensed_records, record)
+	}
+
+	log.Printf("We got information on %d records.\n", len(licensed_records))
 
 	pmcid_wikidata_items, err := PMCIDsToWDItem(pmcid_list)
 	if err != nil {
@@ -388,10 +328,18 @@ func batch(term string, ncbi_api_key string, license_lookup map[string]NCBILicen
 
 	now := time.Now()
 
-	for _, record := range records {
+	for _, record := range licensed_records {
 
 		item := pmcid_wikidata_items[record.PMCID]
 		issn_item := issn_wikidata_items[record.ISSN]
+
+		// see of we can get better license detail from EuroPMC
+		if record.PMCID != "" {
+			record.EPMCLicenseLink, err = GetEuroPMCLicenseLinkForPMCID(record.PMCID)
+			if err != nil {
+				log.Printf("Failed to get EPMC data for %s: %v", record.PMCID, err)
+			}
+		}
 
 		license_item := CC_LICENSE_ITEM_IDS[record.EPMCLicenseLink]
 		license_source := EuroPMC_ITEM
@@ -541,11 +489,6 @@ func main() {
 		panic(err)
 	}
 
-	license_lookup, err := LoadLicenses(NCBI_FILE_FILE)
-	if err != nil {
-		panic(err)
-	}
-
 	qs_file, err := os.Create("results_quickstatements.txt")
 	if err != nil {
 		panic(err)
@@ -560,7 +503,7 @@ func main() {
 
 	for _, term := range term_feed {
 		x := fmt.Sprintf("\"%s\"[Mesh Major Topic] AND (Review[ptyp] OR \"Retraction of Publication\"[PTYP])", term)
-		err := batch(x, ncbi_api_key, license_lookup, csv_file, qs_file)
+		err := batch(x, ncbi_api_key, csv_file, qs_file)
 		if err != nil {
 			panic(err)
 		}
