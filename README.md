@@ -51,11 +51,44 @@ And the tool will be built and put into the `$GOPATH/bin` directory.
 Generating the feed
 ===================
 
-There is a tool that you can use to generate a list of potential search terms. If you just run
+There is a tool that you can use to generate a list of potential search terms. It will write out a JSON file of the top diseases from a provided the list health specialities. The speciality list must be provided as an input JSON file of the form:
 
-```bin/GenerateMeshTerms```
+```
+[
+    {
+        "spec":"http://www.wikidata.org/entity/Q27721906",
+        "specLabel":"Oral and maxillofacial surgery"
+    },
+    {
+        "spec":"http://www.wikidata.org/entity/Q27712466",
+        "specLabel":"Oral surgery, oral medicine, and oral pathology"
+    }
+]
+```
 
-it will write out a JSON file of the top diseases from the list health specialities.
+Which could be generated on wikidata with a SPARQL query like so:
+
+```
+SELECT ?spec ?specLabel WHERE
+{
+  {
+    SELECT ?spec (COUNT(?item) AS ?count) WHERE {
+        ?item wdt:P31 wd:Q12136 .
+        ?item wdt:P1995 ?spec  .
+        }
+  GROUP BY ?spec
+  }
+   SERVICE wikibase:label { bd:serviceParam wikibase:language "en" }
+} LIMIT 2
+```
+
+And then you save the result as non-verbose JSON.
+
+The tool itself is then invoked like so:
+
+```bin/GenerateMeshTerms -feed specialities.json```
+
+It will take a while to run if you provide many specialities due to the limit at which NCBI APIs can be called. Once complete it will have created a file called `generated_feed.json`.  This file can then be passed to the NSCBI2wikidata tool.
 
 
 License

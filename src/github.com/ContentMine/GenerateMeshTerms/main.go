@@ -28,6 +28,11 @@ import (
 	"time"
 )
 
+type FeedTerm struct {
+    ID string `json:"spec"`
+    Label string `json:"specLabel"`
+}
+
 type MeSHLabel struct {
 	Language string `json:"@language"`
 	Value    string `json:"@value"`
@@ -65,22 +70,6 @@ type SparqlResponse struct {
 	Head    Head    `json:"head"`
 	Results Results `json:"results"`
 }
-
-const TOP_LEVEL = `
-SELECT ?spec ?specLabel
-WHERE
-{
-  {
-    SELECT ?spec (COUNT(?item) AS ?count)
-WHERE {
-        ?item wdt:P31 wd:Q12136 .
-        ?item wdt:P1995 ?spec  .
-        }
-  GROUP BY ?spec
-  }
-   SERVICE wikibase:label { bd:serviceParam wikibase:language "en" }
-}
-`
 
 const REFINE_QUERY = `
 SELECT DISTINCT ?item ?MeSHID ?itemLabel
@@ -177,17 +166,25 @@ func getMeshLabel(mesh_id string) (string, error) {
 	return data.MeSHGraph[0].Label.Value, nil
 }
 
-func main() {
+func loadSpecialities(feed_path string) ([]FeedTerm, error) {
 
-	var ncbi_api_key string
-	flag.StringVar(&ncbi_api_key, "ncbi_api_key", "", "NCBI API KEY. Can also be set as NCBI_API_KEY environmental variable.")
-	flag.Parse()
-
-	if ncbi_api_key == "" {
-		ncbi_api_key = os.Getenv("NCBI_API_KEY")
+	f, err := os.Open(feed_path)
+	if err != nil {
+	    return nil, err
 	}
 
-	specialities, err := makeWikidataQuery(TOP_LEVEL)
+	var term_feed []FeedTerm
+	err = json.NewDecoder(f).Decode(&term_feed)
+	return term_feed, err
+}
+
+func main() {
+
+	var feed_path string
+	flag.StringVar(&feed_path, "feed", "", "A list of specialities to define.")
+	flag.Parse()
+
+	specialities, err := loadSpecialities(feed_path)
 	if err != nil {
 		panic(err)
 	}
@@ -196,12 +193,9 @@ func main() {
 
 	meshid_set := make(map[string]string, 0)
 
-	for _, binding := range specialities {
-		if binding.Spec.Value == "" {
-			panic(fmt.Errorf("We got an empty spec binding: %v", binding))
-		}
+	for _, speciality := range specialities {
 
-		query := fmt.Sprintf(REFINE_QUERY, strings.TrimPrefix(binding.Spec.Value, "http://www.wikidata.org/entity/"))
+		query := fmt.Sprintf(REFINE_QUERY, strings.TrimPrefix(speciality.ID, "http://www.wikidata.org/entity/"))
 		specifics, err := makeWikidataQuery(query)
 		if err != nil {
 			panic(err)
@@ -209,7 +203,7 @@ func main() {
 
 		for _, specific_binding := range specifics {
 			if specific_binding.MeSHID.Value == "" {
-				panic(fmt.Errorf("We got an empty specific binding: %v", binding))
+				panic(fmt.Errorf("We got an empty specific binding: %v", specific_binding))
 			}
 			meshid_set[specific_binding.MeSHID.Value] = ""
 		}
