@@ -73,6 +73,16 @@ func FetchLicenses(target_filename string, ftp_location string) error {
 	return err
 }
 
+func set_to_list(m map[string]string) []string {
+	r := make([]string, len(m))
+	i := 0
+	for k, _ := range m {
+		r[i] = k
+		i += 1
+	}
+	return r
+}
+
 // Load the NCBI open access file list so we can map PMID -> Copyright
 //
 // First line is date file was generated, rest are tab separated info on papers. Example:
@@ -229,10 +239,10 @@ func batch(term string, ncbi_api_key string, csv_file *os.File, qs_file *os.File
 
 	// Things to build up as we fetch the results from PMC...
 	all_records := make([]Record, 0)
-	pmid_list := make([]string, 0)
-	pmcid_list := make([]string, 0)
-	issn_list := make([]string, 0)
-	main_subject_list := make([]string, 0)
+	pmid_set := make(map[string]string, 0)
+	pmcid_set := make(map[string]string, 0)
+	issn_set := make(map[string]string, 0)
+	main_subject_set := make(map[string]string, 0)
 	license_map := make(map[string]string, 0)
 
 	for i := 0; i < count; i += EFETCH_BATCH_SIZE {
@@ -267,16 +277,16 @@ func batch(term string, ncbi_api_key string, csv_file *os.File, qs_file *os.File
 
 			// make a note of the things we need to look up on wikidata
 			if record.RetractedByPMID != "" {
-				pmid_list = append(pmid_list, record.RetractedByPMID)
+				pmid_set[record.RetractedByPMID] = ""
 			}
 			for _, subject := range record.MainSubjects {
-				main_subject_list = append(main_subject_list, subject.MeshID)
+				main_subject_set[subject.MeshID] = ""
 			}
 			if record.ISSN != "" {
-				issn_list = append(issn_list, record.ISSN)
+				issn_set[record.ISSN] = ""
 			}
 			if record.PMCID != "" {
-				pmcid_list = append(pmcid_list, record.PMCID)
+				pmcid_set[record.PMCID] = ""
 				license_map[record.PMCID] = ""
 			}
 
@@ -305,18 +315,26 @@ func batch(term string, ncbi_api_key string, csv_file *os.File, qs_file *os.File
 
 	log.Printf("We got information on %d records.\n", len(licensed_records))
 
+	pmcid_list := set_to_list(pmcid_set)
+	log.Printf("Getting IDs for %d PMCID items", len(pmcid_list))
 	pmcid_wikidata_items, err := PMCIDsToWDItem(pmcid_list)
 	if err != nil {
 		return fmt.Errorf("Failed fetching %d PMCID items: %v", len(pmcid_list), err)
 	}
+	pmid_list := set_to_list(pmid_set)
+	log.Printf("Getting IDs for %d PMID items", len(pmid_list))
 	pmid_wikidata_items, err := PMIDsToWDItem(pmid_list)
 	if err != nil {
 		return fmt.Errorf("Failed fetching %d PMID items: %v", len(pmid_list), err)
 	}
+	issn_list := set_to_list(issn_set)
+	log.Printf("Getting IDs for %d ISSN items", len(issn_list))
 	issn_wikidata_items, err := ISSNsToWDItem(issn_list)
 	if err != nil {
 		return fmt.Errorf("Failed fetching %d ISSN items: %v", len(issn_list), err)
 	}
+	main_subject_list := set_to_list(main_subject_set)
+	log.Printf("Getting IDs for %d drug/disease items", len(main_subject_list))
 	drug_wikidata_items, err := DrugsToWDItem(main_subject_list)
 	if err != nil {
 		return fmt.Errorf("Failed fetching drug %d items: %v", len(main_subject_list), err)

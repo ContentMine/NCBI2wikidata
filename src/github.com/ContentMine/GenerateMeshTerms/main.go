@@ -29,8 +29,8 @@ import (
 )
 
 type FeedTerm struct {
-    ID string `json:"spec"`
-    Label string `json:"specLabel"`
+	ID    string `json:"spec"`
+	Label string `json:"specLabel"`
 }
 
 type MeSHLabel struct {
@@ -170,7 +170,7 @@ func loadSpecialities(feed_path string) ([]FeedTerm, error) {
 
 	f, err := os.Open(feed_path)
 	if err != nil {
-	    return nil, err
+		return nil, err
 	}
 
 	var term_feed []FeedTerm

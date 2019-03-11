@@ -47,6 +47,11 @@ type SparqlResponse struct {
 	Results Results `json:"results"`
 }
 
+// If you ask for two many items at once then query.wikidata.org will return a 500 error code, citing
+// java.util.concurrent.TimeoutException. To try and avoid this we only ask for up to this number of items
+// in a single query
+const MAX_ITEMS_PER_QUERY = 200
+
 const SPARQL_QUERY_URL = "https://query.wikidata.org/sparql"
 
 const QUERY_HEADER = `SELECT ?res ?val WHERE {
@@ -76,12 +81,11 @@ func buildSparqlQuery(key string, values []string, item_type string) string {
 	return query
 }
 
-func GetItemsFromWikiData(key string, values []string, item_type string) (map[string]string, error) {
+func internalGetItemsFromWikiData(key string, values []string, item_type string, results map[string]string) error {
 
 	// If we're not given anything don't bother the server
-	results := make(map[string]string)
 	if len(values) == 0 {
-		return results, nil
+		return nil
 	}
 
 	params := url.Values{}
@@ -89,7 +93,7 @@ func GetItemsFromWikiData(key string, values []string, item_type string) (map[st
 
 	req, err := http.NewRequest("POST", SPARQL_QUERY_URL, strings.NewReader(params.Encode()))
 	if err != nil {
-		return nil, err
+		return err
 	}
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Add("Accept", "application/sparql-results+json")
@@ -97,23 +101,23 @@ func GetItemsFromWikiData(key string, values []string, item_type string) (map[st
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
 		body, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
-			return nil, fmt.Errorf("Status code %d", resp.StatusCode)
+			return fmt.Errorf("Status code %d", resp.StatusCode)
 		} else {
-			return nil, fmt.Errorf("Status code %d: %s", resp.StatusCode, body)
+			return fmt.Errorf("Status code %d: %s", resp.StatusCode, body)
 		}
 	}
 
 	data := SparqlResponse{}
 	err = json.NewDecoder(resp.Body).Decode(&data)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	for _, binding := range data.Results.Bindings {
@@ -126,6 +130,26 @@ func GetItemsFromWikiData(key string, values []string, item_type string) (map[st
 			log.Printf("Found duplicate wikidata result for %s with %s", key, binding.Key.Value)
 		} else {
 			results[binding.Key.Value] = val
+		}
+	}
+
+	return nil
+}
+
+func GetItemsFromWikiData(key string, values []string, item_type string) (map[string]string, error) {
+
+	results := make(map[string]string)
+
+	for i := 0; i < len(values); i += MAX_ITEMS_PER_QUERY {
+		j := i + MAX_ITEMS_PER_QUERY
+		if len(values) < j {
+			j = len(values)
+		}
+		s := values[i:j]
+
+		err := internalGetItemsFromWikiData(key, s, item_type, results)
+		if err != nil {
+			return nil, err
 		}
 	}
 
