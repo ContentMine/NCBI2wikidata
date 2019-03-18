@@ -405,13 +405,13 @@ func batch(term string, ncbi_api_key string, csv_file *os.File, qs_file *os.File
 			for _, subject := range record.MainSubjects {
 				if drug_wikidata_items[subject.MeshID] != "" {
 					statement = AddItemPropertyToItem(item, MAIN_SUBJECT_PROPERTY, drug_wikidata_items[subject.MeshID])
-					statement.AddSource(STATED_IN_SOURCE, PMC_ITEM)
+					statement.AddSource(STATED_IN_SOURCE, PM_ITEM)
 					statement.AddSource(RETRIEVED_AT_DATE_SOURCE, fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/11", now.Year(), now.Month(), now.Day()))
 					qs_file.WriteString(fmt.Sprintf("%v", statement))
 				}
 				if disease_wikidata_items[subject.MeshID] != "" {
 					statement = AddItemPropertyToItem(item, MAIN_SUBJECT_PROPERTY, disease_wikidata_items[subject.MeshID])
-					statement.AddSource(STATED_IN_SOURCE, PMC_ITEM)
+					statement.AddSource(STATED_IN_SOURCE, PM_ITEM)
 					statement.AddSource(RETRIEVED_AT_DATE_SOURCE, fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/11", now.Year(), now.Month(), now.Day()))
 					qs_file.WriteString(fmt.Sprintf("%v", statement))
 				}
@@ -419,13 +419,13 @@ func batch(term string, ncbi_api_key string, csv_file *os.File, qs_file *os.File
 
 			if record.IsRetracted {
 				statement := AddItemPropertyToItem(item, INSTANCE_OF_PROPERTY, RETRACTED_PAPER_TYPE)
-				statement.AddSource(STATED_IN_SOURCE, PMC_ITEM)
+				statement.AddSource(STATED_IN_SOURCE, PM_ITEM)
 				statement.AddSource(RETRIEVED_AT_DATE_SOURCE, fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/11", now.Year(), now.Month(), now.Day()))
 				qs_file.WriteString(fmt.Sprintf("%v", statement))
 
 				if retracted_by_item != "" {
 					statement := AddItemPropertyToItem(item, RETRACTED_BY_PROPERTY, retracted_by_item)
-					statement.AddSource(STATED_IN_SOURCE, PMC_ITEM)
+					statement.AddSource(STATED_IN_SOURCE, PM_ITEM)
 					statement.AddSource(RETRIEVED_AT_DATE_SOURCE, fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/11", now.Year(), now.Month(), now.Day()))
 					qs_file.WriteString(fmt.Sprintf("%v", statement))
 				}
@@ -433,7 +433,7 @@ func batch(term string, ncbi_api_key string, csv_file *os.File, qs_file *os.File
 
 			if record.IsRetraction {
 				statement := AddItemPropertyToItem(item, INSTANCE_OF_PROPERTY, RETRACTION_NOTICE_TYPE)
-				statement.AddSource(STATED_IN_SOURCE, PMC_ITEM)
+				statement.AddSource(STATED_IN_SOURCE, PM_ITEM)
 				statement.AddSource(RETRIEVED_AT_DATE_SOURCE, fmt.Sprintf("+%04d-%02d-%02dT00:00:00Z/11", now.Year(), now.Month(), now.Day()))
 				qs_file.WriteString(fmt.Sprintf("%v", statement))
 			}
