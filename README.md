@@ -88,7 +88,7 @@ The tool itself is then invoked like so:
 
 ```bin/GenerateMeshTerms -feed specialities.json```
 
-It will take a while to run if you provide many specialities due to the limit at which NCBI APIs can be called. Once complete it will have created a file called `generated_feed.json`.  This file can then be passed to the NSCBI2wikidata tool.
+It will take a while to run if you provide many specialities due to the limit at which NCBI APIs can be called. Once complete it will have created a file called `generated_feed.json`.  This file can then be passed to the NCBI2wikidata tool.
 
 
 License
